@@ -1,380 +1,1311 @@
 <!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta property="og:title" content="Kadıköy y Moda a pie">
-<meta property="og:description" content="Audioguía del grupo: 11 paradas por Kadıköy y Moda">
+<meta property="og:description" content="App audioguía del grupo: 15 paradas por Kadıköy y Moda">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
 </head>
 <body>
+<meta charset="utf-8">
 <title>Kadıköy y Moda a pie</title>
 <meta name="claude:viewport-fit-sides" content="cover">
+<meta name="theme-color" content="#1F4555">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gloock&family=Commissioner:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>/* required styles */
+
+.leaflet-pane,
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow,
+.leaflet-tile-container,
+.leaflet-pane > svg,
+.leaflet-pane > canvas,
+.leaflet-zoom-box,
+.leaflet-image-layer,
+.leaflet-layer {
+	position: absolute;
+	left: 0;
+	top: 0;
+	}
+.leaflet-container {
+	overflow: hidden;
+	}
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+	-webkit-user-select: none;
+	   -moz-user-select: none;
+	        user-select: none;
+	  -webkit-user-drag: none;
+	}
+/* Prevents IE11 from highlighting tiles in blue */
+.leaflet-tile::selection {
+	background: transparent;
+}
+/* Safari renders non-retina tile on retina better with this, but Chrome is worse */
+.leaflet-safari .leaflet-tile {
+	image-rendering: -webkit-optimize-contrast;
+	}
+/* hack that prevents hw layers "stretching" when loading new tiles */
+.leaflet-safari .leaflet-tile-container {
+	width: 1600px;
+	height: 1600px;
+	-webkit-transform-origin: 0 0;
+	}
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+	display: block;
+	}
+/* .leaflet-container svg: reset svg max-width decleration shipped in Joomla! (joomla.org) 3.x */
+/* .leaflet-container img: map is broken in FF if you have max-width: 100% on tiles */
+.leaflet-container .leaflet-overlay-pane svg {
+	max-width: none !important;
+	max-height: none !important;
+	}
+.leaflet-container .leaflet-marker-pane img,
+.leaflet-container .leaflet-shadow-pane img,
+.leaflet-container .leaflet-tile-pane img,
+.leaflet-container img.leaflet-image-layer,
+.leaflet-container .leaflet-tile {
+	max-width: none !important;
+	max-height: none !important;
+	width: auto;
+	padding: 0;
+	}
+
+.leaflet-container img.leaflet-tile {
+	/* See: https://bugs.chromium.org/p/chromium/issues/detail?id=600120 */
+	mix-blend-mode: plus-lighter;
+}
+
+.leaflet-container.leaflet-touch-zoom {
+	-ms-touch-action: pan-x pan-y;
+	touch-action: pan-x pan-y;
+	}
+.leaflet-container.leaflet-touch-drag {
+	-ms-touch-action: pinch-zoom;
+	/* Fallback for FF which doesn't support pinch-zoom */
+	touch-action: none;
+	touch-action: pinch-zoom;
+}
+.leaflet-container.leaflet-touch-drag.leaflet-touch-zoom {
+	-ms-touch-action: none;
+	touch-action: none;
+}
+.leaflet-container {
+	-webkit-tap-highlight-color: transparent;
+}
+.leaflet-container a {
+	-webkit-tap-highlight-color: rgba(51, 181, 229, 0.4);
+}
+.leaflet-tile {
+	filter: inherit;
+	visibility: hidden;
+	}
+.leaflet-tile-loaded {
+	visibility: inherit;
+	}
+.leaflet-zoom-box {
+	width: 0;
+	height: 0;
+	-moz-box-sizing: border-box;
+	     box-sizing: border-box;
+	z-index: 800;
+	}
+/* workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=888319 */
+.leaflet-overlay-pane svg {
+	-moz-user-select: none;
+	}
+
+.leaflet-pane         { z-index: 400; }
+
+.leaflet-tile-pane    { z-index: 200; }
+.leaflet-overlay-pane { z-index: 400; }
+.leaflet-shadow-pane  { z-index: 500; }
+.leaflet-marker-pane  { z-index: 600; }
+.leaflet-tooltip-pane   { z-index: 650; }
+.leaflet-popup-pane   { z-index: 700; }
+
+.leaflet-map-pane canvas { z-index: 100; }
+.leaflet-map-pane svg    { z-index: 200; }
+
+.leaflet-vml-shape {
+	width: 1px;
+	height: 1px;
+	}
+.lvml {
+	behavior: url(#default#VML);
+	display: inline-block;
+	position: absolute;
+	}
+
+
+/* control positioning */
+
+.leaflet-control {
+	position: relative;
+	z-index: 800;
+	pointer-events: visiblePainted; /* IE 9-10 doesn't have auto */
+	pointer-events: auto;
+	}
+.leaflet-top,
+.leaflet-bottom {
+	position: absolute;
+	z-index: 1000;
+	pointer-events: none;
+	}
+.leaflet-top {
+	top: 0;
+	}
+.leaflet-right {
+	right: 0;
+	}
+.leaflet-bottom {
+	bottom: 0;
+	}
+.leaflet-left {
+	left: 0;
+	}
+.leaflet-control {
+	float: left;
+	clear: both;
+	}
+.leaflet-right .leaflet-control {
+	float: right;
+	}
+.leaflet-top .leaflet-control {
+	margin-top: 10px;
+	}
+.leaflet-bottom .leaflet-control {
+	margin-bottom: 10px;
+	}
+.leaflet-left .leaflet-control {
+	margin-left: 10px;
+	}
+.leaflet-right .leaflet-control {
+	margin-right: 10px;
+	}
+
+
+/* zoom and fade animations */
+
+.leaflet-fade-anim .leaflet-popup {
+	opacity: 0;
+	-webkit-transition: opacity 0.2s linear;
+	   -moz-transition: opacity 0.2s linear;
+	        transition: opacity 0.2s linear;
+	}
+.leaflet-fade-anim .leaflet-map-pane .leaflet-popup {
+	opacity: 1;
+	}
+.leaflet-zoom-animated {
+	-webkit-transform-origin: 0 0;
+	    -ms-transform-origin: 0 0;
+	        transform-origin: 0 0;
+	}
+svg.leaflet-zoom-animated {
+	will-change: transform;
+}
+
+.leaflet-zoom-anim .leaflet-zoom-animated {
+	-webkit-transition: -webkit-transform 0.25s cubic-bezier(0,0,0.25,1);
+	   -moz-transition:    -moz-transform 0.25s cubic-bezier(0,0,0.25,1);
+	        transition:         transform 0.25s cubic-bezier(0,0,0.25,1);
+	}
+.leaflet-zoom-anim .leaflet-tile,
+.leaflet-pan-anim .leaflet-tile {
+	-webkit-transition: none;
+	   -moz-transition: none;
+	        transition: none;
+	}
+
+.leaflet-zoom-anim .leaflet-zoom-hide {
+	visibility: hidden;
+	}
+
+
+/* cursors */
+
+.leaflet-interactive {
+	cursor: pointer;
+	}
+.leaflet-grab {
+	cursor: -webkit-grab;
+	cursor:    -moz-grab;
+	cursor:         grab;
+	}
+.leaflet-crosshair,
+.leaflet-crosshair .leaflet-interactive {
+	cursor: crosshair;
+	}
+.leaflet-popup-pane,
+.leaflet-control {
+	cursor: auto;
+	}
+.leaflet-dragging .leaflet-grab,
+.leaflet-dragging .leaflet-grab .leaflet-interactive,
+.leaflet-dragging .leaflet-marker-draggable {
+	cursor: move;
+	cursor: -webkit-grabbing;
+	cursor:    -moz-grabbing;
+	cursor:         grabbing;
+	}
+
+/* marker & overlays interactivity */
+.leaflet-marker-icon,
+.leaflet-marker-shadow,
+.leaflet-image-layer,
+.leaflet-pane > svg path,
+.leaflet-tile-container {
+	pointer-events: none;
+	}
+
+.leaflet-marker-icon.leaflet-interactive,
+.leaflet-image-layer.leaflet-interactive,
+.leaflet-pane > svg path.leaflet-interactive,
+svg.leaflet-image-layer.leaflet-interactive path {
+	pointer-events: visiblePainted; /* IE 9-10 doesn't have auto */
+	pointer-events: auto;
+	}
+
+/* visual tweaks */
+
+.leaflet-container {
+	background: #ddd;
+	outline-offset: 1px;
+	}
+.leaflet-container a {
+	color: #0078A8;
+	}
+.leaflet-zoom-box {
+	border: 2px dotted #38f;
+	background: rgba(255,255,255,0.5);
+	}
+
+
+/* general typography */
+.leaflet-container {
+	font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	font-size: 0.75rem;
+	line-height: 1.5;
+	}
+
+
+/* general toolbar styles */
+
+.leaflet-bar {
+	box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+	border-radius: 4px;
+	}
+.leaflet-bar a {
+	background-color: #fff;
+	border-bottom: 1px solid #ccc;
+	width: 26px;
+	height: 26px;
+	line-height: 26px;
+	display: block;
+	text-align: center;
+	text-decoration: none;
+	color: black;
+	}
+.leaflet-bar a,
+.leaflet-control-layers-toggle {
+	background-position: 50% 50%;
+	background-repeat: no-repeat;
+	display: block;
+	}
+.leaflet-bar a:hover,
+.leaflet-bar a:focus {
+	background-color: #f4f4f4;
+	}
+.leaflet-bar a:first-child {
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+	}
+.leaflet-bar a:last-child {
+	border-bottom-left-radius: 4px;
+	border-bottom-right-radius: 4px;
+	border-bottom: none;
+	}
+.leaflet-bar a.leaflet-disabled {
+	cursor: default;
+	background-color: #f4f4f4;
+	color: #bbb;
+	}
+
+.leaflet-touch .leaflet-bar a {
+	width: 30px;
+	height: 30px;
+	line-height: 30px;
+	}
+.leaflet-touch .leaflet-bar a:first-child {
+	border-top-left-radius: 2px;
+	border-top-right-radius: 2px;
+	}
+.leaflet-touch .leaflet-bar a:last-child {
+	border-bottom-left-radius: 2px;
+	border-bottom-right-radius: 2px;
+	}
+
+/* zoom control */
+
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out {
+	font: bold 18px 'Lucida Console', Monaco, monospace;
+	text-indent: 1px;
+	}
+
+.leaflet-touch .leaflet-control-zoom-in, .leaflet-touch .leaflet-control-zoom-out  {
+	font-size: 22px;
+	}
+
+
+/* layers control */
+
+.leaflet-control-layers {
+	box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+	background: #fff;
+	border-radius: 5px;
+	}
+.leaflet-control-layers-toggle {
+	background-image: url(images/layers.png);
+	width: 36px;
+	height: 36px;
+	}
+.leaflet-retina .leaflet-control-layers-toggle {
+	background-image: url(images/layers-2x.png);
+	background-size: 26px 26px;
+	}
+.leaflet-touch .leaflet-control-layers-toggle {
+	width: 44px;
+	height: 44px;
+	}
+.leaflet-control-layers .leaflet-control-layers-list,
+.leaflet-control-layers-expanded .leaflet-control-layers-toggle {
+	display: none;
+	}
+.leaflet-control-layers-expanded .leaflet-control-layers-list {
+	display: block;
+	position: relative;
+	}
+.leaflet-control-layers-expanded {
+	padding: 6px 10px 6px 6px;
+	color: #333;
+	background: #fff;
+	}
+.leaflet-control-layers-scrollbar {
+	overflow-y: scroll;
+	overflow-x: hidden;
+	padding-right: 5px;
+	}
+.leaflet-control-layers-selector {
+	margin-top: 2px;
+	position: relative;
+	top: 1px;
+	}
+.leaflet-control-layers label {
+	display: block;
+	font-size: 13px;
+	font-size: 1.08333em;
+	}
+.leaflet-control-layers-separator {
+	height: 0;
+	border-top: 1px solid #ddd;
+	margin: 5px -10px 5px -6px;
+	}
+
+/* Default icon URLs */
+.leaflet-default-icon-path { /* used only in path-guessing heuristic, see L.Icon.Default */
+	background-image: url(images/marker-icon.png);
+	}
+
+
+/* attribution and scale controls */
+
+.leaflet-container .leaflet-control-attribution {
+	background: #fff;
+	background: rgba(255, 255, 255, 0.8);
+	margin: 0;
+	}
+.leaflet-control-attribution,
+.leaflet-control-scale-line {
+	padding: 0 5px;
+	color: #333;
+	line-height: 1.4;
+	}
+.leaflet-control-attribution a {
+	text-decoration: none;
+	}
+.leaflet-control-attribution a:hover,
+.leaflet-control-attribution a:focus {
+	text-decoration: underline;
+	}
+.leaflet-attribution-flag {
+	display: inline !important;
+	vertical-align: baseline !important;
+	width: 1em;
+	height: 0.6669em;
+	}
+.leaflet-left .leaflet-control-scale {
+	margin-left: 5px;
+	}
+.leaflet-bottom .leaflet-control-scale {
+	margin-bottom: 5px;
+	}
+.leaflet-control-scale-line {
+	border: 2px solid #777;
+	border-top: none;
+	line-height: 1.1;
+	padding: 2px 5px 1px;
+	white-space: nowrap;
+	-moz-box-sizing: border-box;
+	     box-sizing: border-box;
+	background: rgba(255, 255, 255, 0.8);
+	text-shadow: 1px 1px #fff;
+	}
+.leaflet-control-scale-line:not(:first-child) {
+	border-top: 2px solid #777;
+	border-bottom: none;
+	margin-top: -2px;
+	}
+.leaflet-control-scale-line:not(:first-child):not(:last-child) {
+	border-bottom: 2px solid #777;
+	}
+
+.leaflet-touch .leaflet-control-attribution,
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+	box-shadow: none;
+	}
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+	border: 2px solid rgba(0,0,0,0.2);
+	background-clip: padding-box;
+	}
+
+
+/* popup */
+
+.leaflet-popup {
+	position: absolute;
+	text-align: center;
+	margin-bottom: 20px;
+	}
+.leaflet-popup-content-wrapper {
+	padding: 1px;
+	text-align: left;
+	border-radius: 12px;
+	}
+.leaflet-popup-content {
+	margin: 13px 24px 13px 20px;
+	line-height: 1.3;
+	font-size: 13px;
+	font-size: 1.08333em;
+	min-height: 1px;
+	}
+.leaflet-popup-content p {
+	margin: 17px 0;
+	margin: 1.3em 0;
+	}
+.leaflet-popup-tip-container {
+	width: 40px;
+	height: 20px;
+	position: absolute;
+	left: 50%;
+	margin-top: -1px;
+	margin-left: -20px;
+	overflow: hidden;
+	pointer-events: none;
+	}
+.leaflet-popup-tip {
+	width: 17px;
+	height: 17px;
+	padding: 1px;
+
+	margin: -10px auto 0;
+	pointer-events: auto;
+
+	-webkit-transform: rotate(45deg);
+	   -moz-transform: rotate(45deg);
+	    -ms-transform: rotate(45deg);
+	        transform: rotate(45deg);
+	}
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+	background: white;
+	color: #333;
+	box-shadow: 0 3px 14px rgba(0,0,0,0.4);
+	}
+.leaflet-container a.leaflet-popup-close-button {
+	position: absolute;
+	top: 0;
+	right: 0;
+	border: none;
+	text-align: center;
+	width: 24px;
+	height: 24px;
+	font: 16px/24px Tahoma, Verdana, sans-serif;
+	color: #757575;
+	text-decoration: none;
+	background: transparent;
+	}
+.leaflet-container a.leaflet-popup-close-button:hover,
+.leaflet-container a.leaflet-popup-close-button:focus {
+	color: #585858;
+	}
+.leaflet-popup-scrolled {
+	overflow: auto;
+	}
+
+.leaflet-oldie .leaflet-popup-content-wrapper {
+	-ms-zoom: 1;
+	}
+.leaflet-oldie .leaflet-popup-tip {
+	width: 24px;
+	margin: 0 auto;
+
+	-ms-filter: "progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678)";
+	filter: progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678);
+	}
+
+.leaflet-oldie .leaflet-control-zoom,
+.leaflet-oldie .leaflet-control-layers,
+.leaflet-oldie .leaflet-popup-content-wrapper,
+.leaflet-oldie .leaflet-popup-tip {
+	border: 1px solid #999;
+	}
+
+
+/* div icon */
+
+.leaflet-div-icon {
+	background: #fff;
+	border: 1px solid #666;
+	}
+
+
+/* Tooltip */
+/* Base styles for the element that has a tooltip */
+.leaflet-tooltip {
+	position: absolute;
+	padding: 6px;
+	background-color: #fff;
+	border: 1px solid #fff;
+	border-radius: 3px;
+	color: #222;
+	white-space: nowrap;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	pointer-events: none;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+	}
+.leaflet-tooltip.leaflet-interactive {
+	cursor: pointer;
+	pointer-events: auto;
+	}
+.leaflet-tooltip-top:before,
+.leaflet-tooltip-bottom:before,
+.leaflet-tooltip-left:before,
+.leaflet-tooltip-right:before {
+	position: absolute;
+	pointer-events: none;
+	border: 6px solid transparent;
+	background: transparent;
+	content: "";
+	}
+
+/* Directions */
+
+.leaflet-tooltip-bottom {
+	margin-top: 6px;
+}
+.leaflet-tooltip-top {
+	margin-top: -6px;
+}
+.leaflet-tooltip-bottom:before,
+.leaflet-tooltip-top:before {
+	left: 50%;
+	margin-left: -6px;
+	}
+.leaflet-tooltip-top:before {
+	bottom: 0;
+	margin-bottom: -12px;
+	border-top-color: #fff;
+	}
+.leaflet-tooltip-bottom:before {
+	top: 0;
+	margin-top: -12px;
+	margin-left: -6px;
+	border-bottom-color: #fff;
+	}
+.leaflet-tooltip-left {
+	margin-left: -6px;
+}
+.leaflet-tooltip-right {
+	margin-left: 6px;
+}
+.leaflet-tooltip-left:before,
+.leaflet-tooltip-right:before {
+	top: 50%;
+	margin-top: -6px;
+	}
+.leaflet-tooltip-left:before {
+	right: 0;
+	margin-right: -12px;
+	border-left-color: #fff;
+	}
+.leaflet-tooltip-right:before {
+	left: 0;
+	margin-left: -12px;
+	border-right-color: #fff;
+	}
+
+/* Printing */
+
+@media print {
+	/* Prevent printers from removing background-images of controls. */
+	.leaflet-control {
+		-webkit-print-color-adjust: exact;
+		print-color-adjust: exact;
+		}
+	}
+</style>
 <style>
-/* Layout: ferry-ticket header over a Marmara-blue band with the vapur's yellow stripe, then a route schematic and a numbered walking sequence; a mini-player docks at the bottom. */
+/* Layout: a phone-first app. Sticky top bar, four tabbed views (Ruta, Mapa, Comer, Info), a full-screen stop sheet, and a docked player above the tab bar. Identity: Şehir Hatları ferry — Marmara blue, ferry-funnel yellow, çay amber. */
 :root{
-  --bg:#EEF2F3; --surface:#FFFFFF; --ink:#13212B; --muted:#5A6A74; --line:#D4DDE1;
-  --sea:#1F4555; --sea-ink:#EAF2F4; --water:#CFDEE4;
-  --cay:#B8661A; --cay-soft:#F6E6D3; --stripe:#E9B22A;
-  --ok:#2F7D5B;
-  --f-display:"Gloock", "Iowan Old Style", Georgia, serif;
-  --f-body:"Commissioner", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --f-mono:"JetBrains Mono", ui-monospace, Menlo, monospace;
-  --r:14px;
+  --bg:#EDF1F3; --surface:#FFFFFF; --raise:#F6F8F9; --ink:#12202A; --muted:#5B6B75; --line:#D6DEE2;
+  --sea:#1F4555; --sea-2:#2D6577; --sea-ink:#EAF3F6; --stripe:#F2B827; --cay:#B5621A; --cay-soft:#F7E7D4;
+  --ok:#2E7D5A; --ok-soft:#DDF0E6; --cover-ink:#FFFFFF; --shadow:0 1px 2px rgba(18,32,42,.06),0 6px 18px rgba(18,32,42,.07);
+  --f-display:"Gloock","Iowan Old Style",Georgia,serif;
+  --f-body:"Commissioner",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  --r:16px; --tabs:64px; --dock:68px;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0E161C; --surface:#16222A; --ink:#E7EEF1; --muted:#9AAAB3; --line:#26343D;
-  --sea:#13303C; --sea-ink:#E3EEF2; --water:#1B3542;
-  --cay:#E39A45; --cay-soft:#3A2817; --stripe:#E9B22A; --ok:#5FBF91; color-scheme:dark}}
+  --bg:#0C141A; --surface:#141F27; --raise:#1A2730; --ink:#E6EEF1; --muted:#97A8B1; --line:#24333C;
+  --sea:#17384A; --sea-2:#24546A; --sea-ink:#E3EEF2; --stripe:#F2B827; --cay:#E8A055; --cay-soft:#33251A;
+  --ok:#5CC08F; --ok-soft:#173327; --cover-ink:#FFFFFF; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 20px rgba(0,0,0,.25); color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#0E161C; --surface:#16222A; --ink:#E7EEF1; --muted:#9AAAB3; --line:#26343D;
-  --sea:#13303C; --sea-ink:#E3EEF2; --water:#1B3542;
-  --cay:#E39A45; --cay-soft:#3A2817; --stripe:#E9B22A; --ok:#5FBF91; color-scheme:dark}
+  --bg:#0C141A; --surface:#141F27; --raise:#1A2730; --ink:#E6EEF1; --muted:#97A8B1; --line:#24333C;
+  --sea:#17384A; --sea-2:#24546A; --sea-ink:#E3EEF2; --stripe:#F2B827; --cay:#E8A055; --cay-soft:#33251A;
+  --ok:#5CC08F; --ok-soft:#173327; --cover-ink:#FFFFFF; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 20px rgba(0,0,0,.25); color-scheme:dark}
 
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;padding-bottom:110px}
-.wrap{max-width:760px;margin:0 auto;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
-h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0;letter-spacing:.005em}
-.mono{font-family:var(--f-mono);font-size:.78rem;letter-spacing:.02em}
-.eyebrow{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--sea)}
+button{font:inherit;color:inherit}
 a{color:inherit}
-:focus-visible{outline:2px solid var(--cay);outline-offset:2px;border-radius:6px}
+h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;text-wrap:balance;letter-spacing:.005em}
+:focus-visible{outline:2px solid var(--cay);outline-offset:2px;border-radius:8px}
+.mono{font-family:var(--f-mono)}
+.eyebrow{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.ico{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.ico.fill{fill:currentColor;stroke:none}
+.pad{padding-left:max(16px, env(safe-area-inset-left,0px));padding-right:max(16px, env(safe-area-inset-right,0px))}
+.inner{max-width:720px;margin:0 auto}
 
-/* Hero */
-.hero{background:var(--sea);color:var(--sea-ink);position:relative}
-.hero .wrap{padding-block:36px 30px;display:grid;gap:18px}
-.hero .eyebrow{color:color-mix(in srgb, var(--sea-ink) 70%, transparent)}
-.hero h1{font-size:clamp(2.6rem, 9vw, 4.2rem);line-height:.98}
+/* Top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:var(--sea);color:var(--sea-ink)}
+.top .inner{display:flex;align-items:center;gap:12px;height:56px}
+.brand{display:flex;align-items:center;gap:10px;min-width:0;flex:1}
+.brand .logo{width:32px;height:32px;border-radius:9px;background:var(--stripe);color:var(--sea);display:grid;place-items:center;flex:none}
+.brand b{font-family:var(--f-display);font-weight:400;font-size:1.25rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ring{display:flex;align-items:center;gap:8px;font-family:var(--f-mono);font-size:.75rem;opacity:.95}
+.ring svg{width:30px;height:30px;transform:rotate(-90deg)}
+.ring .bgc{stroke:color-mix(in srgb,var(--sea-ink) 25%,transparent)}
+.ring .fgc{stroke:var(--stripe);transition:stroke-dashoffset .4s}
+.topstripe{height:4px;background:var(--stripe)}
+
+/* Views */
+main{padding-bottom:calc(var(--tabs) + var(--dock) + env(safe-area-inset-bottom,0px) + 24px)}
+.view{display:none}
+.view.on{display:block}
+.view > .pad{padding-block:20px 8px}
+.stack{display:grid;gap:18px}
+.sec-title{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:10px 0 2px}
+.sec-title h2{font-size:1.6rem}
+
+/* Hero ticket */
+.hero{background:linear-gradient(160deg,var(--sea) 0%,var(--sea-2) 100%);color:var(--sea-ink);border-radius:22px;padding:22px 20px 0;position:relative;overflow:hidden;box-shadow:var(--shadow)}
+.hero h1{font-size:clamp(2.4rem,11vw,3.6rem);line-height:.95;margin-top:8px}
 .hero h1 em{font-style:normal;color:var(--stripe)}
-.hero p{margin:0;max-width:52ch;color:color-mix(in srgb, var(--sea-ink) 86%, transparent)}
-.ticket{display:flex;flex-wrap:wrap;gap:0;border:1px solid color-mix(in srgb, var(--sea-ink) 25%, transparent);border-radius:10px;overflow:hidden;width:fit-content;max-width:100%}
-.ticket div{padding:10px 16px;border-right:1px dashed color-mix(in srgb, var(--sea-ink) 25%, transparent);display:grid;gap:2px}
-.ticket div:last-child{border-right:0}
-.ticket b{font-family:var(--f-mono);font-weight:600;font-size:1rem;font-variant-numeric:tabular-nums}
-.ticket span{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;opacity:.7}
-.stripe{height:10px;background:var(--stripe)}
-.route-line{font-family:var(--f-mono);font-size:.82rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.route-line i{flex:0 1 60px;height:1px;background:currentColor;opacity:.5;min-width:24px}
+.hero p{margin:10px 0 0;max-width:46ch;opacity:.9;font-size:.95rem}
+.hero .eyebrow{color:color-mix(in srgb,var(--sea-ink) 70%,transparent)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);margin:18px -20px 0;border-top:1px dashed color-mix(in srgb,var(--sea-ink) 30%,transparent)}
+.stats div{padding:12px 10px;text-align:center;border-right:1px dashed color-mix(in srgb,var(--sea-ink) 30%,transparent);display:grid;gap:2px}
+.stats div:last-child{border-right:0}
+.stats b{font-family:var(--f-mono);font-size:1rem;font-variant-numeric:tabular-nums}
+.stats span{font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;opacity:.75}
+.hero .waves{position:absolute;right:-10px;top:10px;width:150px;opacity:.18;color:var(--sea-ink)}
+.hero .stripe{height:8px;background:var(--stripe);margin:0 -20px}
 
-/* Notices */
-.notices{display:grid;gap:10px;margin-block:22px}
-.notice{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px}
-.notice .tag{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:999px;background:var(--cay-soft);color:var(--cay);white-space:nowrap;font-weight:600}
-.notice p{margin:0;font-size:.93rem;min-width:0}
-.notice.today{border-color:var(--cay)}
+/* Cards */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+.intro{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;padding:14px}
+.intro .art{width:52px;height:52px;border-radius:14px;background:var(--cay-soft);color:var(--cay);display:grid;place-items:center}
+.intro .art .ico{width:26px;height:26px}
+.intro b{display:block;font-weight:600}
+.intro span{font-size:.85rem;color:var(--muted)}
+.pbtn{width:48px;height:48px;border-radius:50%;border:0;background:var(--sea);color:var(--sea-ink);display:grid;place-items:center;cursor:pointer;flex:none}
+.pbtn.is-on{background:var(--cay);color:#fff}
+.pbtn .ico{width:20px;height:20px}
+
+.alerts{display:grid;gap:10px}
+.alert{display:grid;grid-template-columns:auto 1fr;gap:12px;padding:14px;align-items:start}
+.alert .badge{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:var(--cay-soft);color:var(--cay)}
+.alert.today{border-color:var(--cay)}
+.alert p{margin:0;font-size:.9rem;min-width:0}
+.alert strong{display:block;margin-bottom:2px}
+
+/* Plan scroller */
+.hscroll{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding:2px 2px 8px;margin:0 -2px;scrollbar-width:none}
+.hscroll::-webkit-scrollbar{display:none}
+.slot{flex:0 0 148px;scroll-snap-align:start;padding:12px;display:grid;gap:4px;align-content:start}
+.slot .t{font-family:var(--f-mono);font-weight:600;font-size:1.05rem;color:var(--cay);font-variant-numeric:tabular-nums}
+.slot b{font-size:.92rem;line-height:1.25}
+.slot span{font-size:.78rem;color:var(--muted);line-height:1.35}
+
+/* Stop list */
+.stops{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.srow{display:grid;grid-template-columns:96px 1fr;gap:0;overflow:hidden;cursor:pointer;text-align:left;width:100%;padding:0;border:1px solid var(--line);background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow)}
+.srow:active{transform:scale(.99)}
+.thumb{position:relative;min-height:100px;color:var(--cover-ink);display:grid;place-items:center;overflow:hidden}
+.thumb .ico{width:40px;height:40px;stroke-width:1.5;position:relative;z-index:1}
+.thumb .n{position:absolute;left:8px;top:8px;font-family:var(--f-mono);font-size:.72rem;font-weight:600;background:rgba(0,0,0,.28);padding:2px 7px;border-radius:999px;z-index:2}
+.thumb .done{position:absolute;right:6px;bottom:6px;width:24px;height:24px;border-radius:50%;background:var(--ok);display:none;place-items:center;z-index:2}
+.thumb .done .ico{width:14px;height:14px;stroke-width:2.6}
+.srow.is-done .thumb .done{display:grid}
+.srow .body{padding:12px 14px;display:grid;gap:4px;align-content:center;min-width:0}
+.srow .body b{font-family:var(--f-display);font-weight:400;font-size:1.2rem;line-height:1.15}
+.srow .tr{font-family:var(--f-mono);font-size:.7rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meta{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:.78rem;color:var(--muted);align-items:center}
+.meta span{display:inline-flex;align-items:center;gap:4px}
+.meta .ico{width:14px;height:14px}
+.srow.is-playing{border-color:var(--cay);box-shadow:0 0 0 3px color-mix(in srgb,var(--cay) 22%,transparent)}
+.walkline{display:flex;align-items:center;gap:8px;font-family:var(--f-mono);font-size:.7rem;color:var(--muted);padding-left:38px;margin:-4px 0}
+.walkline::before{content:"";width:2px;height:16px;background:repeating-linear-gradient(var(--muted) 0 3px,transparent 3px 6px);opacity:.6}
+.cover-bg{position:absolute;inset:0}
 
 /* Map */
-section{margin-block:34px}
-.sec-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
-.sec-head h2{font-size:1.75rem}
-.map{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px}
-.map svg{display:block;width:100%;height:auto;max-height:460px}
-.map .note{font-size:.78rem;color:var(--muted);margin:8px 4px 0}
-.node{cursor:pointer}
-.node circle.dot{fill:var(--surface);stroke:var(--sea);stroke-width:2}
-.node.extra circle.dot{stroke:var(--cay);stroke-dasharray:3 2}
-.node.done circle.dot{fill:var(--ok);stroke:var(--ok)}
-.node text.n{font-family:var(--f-mono);font-size:10px;font-weight:600;fill:var(--ink);text-anchor:middle;dominant-baseline:central}
-.node.done text.n{fill:var(--surface)}
-.node text.lbl{font-family:var(--f-body);font-size:10.5px;fill:var(--muted)}
-.node.playing circle.dot{fill:var(--cay);stroke:var(--cay)}
-.node.playing text.n{fill:#fff}
+.mapwrap{position:relative;height:calc(100dvh - 60px - var(--tabs) - var(--dock) - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));min-height:360px}
+#map{position:absolute;inset:0;background:var(--raise)}
+#schematic{position:absolute;inset:0;display:none;background:var(--raise);padding:12px}
+#schematic svg{width:100%;height:100%}
+.mapfab{position:absolute;right:max(12px,env(safe-area-inset-right,0px));top:12px;z-index:500;display:grid;gap:8px}
+.fab{width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);display:grid;place-items:center;box-shadow:var(--shadow);cursor:pointer}
+.mapnote{position:absolute;left:12px;bottom:12px;right:70px;z-index:500;font-size:.75rem;background:var(--surface);color:var(--muted);border:1px solid var(--line);border-radius:10px;padding:6px 10px;width:fit-content;max-width:calc(100% - 82px)}
+.pin{width:30px;height:30px;border-radius:50% 50% 50% 4px;transform:rotate(-45deg);background:var(--sea);border:2px solid #fff;display:grid;place-items:center;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.pin span{transform:rotate(45deg);color:#fff;font:600 12px/1 var(--f-mono)}
+.pin.extra{background:var(--cay)}
+.pin.done{background:var(--ok)}
+.pin.playing{background:var(--cay);transform:rotate(-45deg) scale(1.2)}
+.leaflet-container{font-family:var(--f-body);background:var(--raise)}
+.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:var(--surface);color:var(--ink)}
+.leaflet-popup-content{margin:12px 14px;font-size:.9rem}
+.leaflet-popup-content b{font-family:var(--f-display);font-weight:400;font-size:1.1rem;display:block}
+.popbtn{margin-top:8px;border:0;background:var(--sea);color:var(--sea-ink);border-radius:999px;padding:6px 12px;cursor:pointer;font-size:.82rem}
+.leaflet-control-attribution{font-size:10px}
+.me{width:16px;height:16px;border-radius:50%;background:#2F80ED;border:3px solid #fff;box-shadow:0 0 0 6px rgba(47,128,237,.25)}
 
-/* Progress */
-.progress{display:flex;align-items:center;gap:12px;font-size:.85rem;color:var(--muted)}
-.bar{flex:1;height:6px;border-radius:99px;background:var(--line);overflow:hidden}
-.bar i{display:block;height:100%;width:0;background:var(--ok);transition:width .3s}
+/* Sheet */
+.sheet{position:fixed;inset:0;z-index:70;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch;transform:translateY(100%);transition:transform .32s cubic-bezier(.2,.8,.2,1);visibility:hidden;padding-bottom:calc(var(--dock) + env(safe-area-inset-bottom,0px) + 24px)}
+.sheet.on{transform:none;visibility:visible}
+.cover{position:relative;min-height:calc(250px + env(safe-area-inset-top,0px));color:var(--cover-ink);overflow:hidden;display:flex;align-items:flex-end}
+.cover .big{position:absolute;right:-20px;top:calc(30px + env(safe-area-inset-top,0px));width:190px;height:190px;opacity:.28;stroke-width:1.1}
+.cover .content{position:relative;z-index:2;width:100%;padding-block:0 22px}
+.cover h2{font-size:clamp(2rem,8.5vw,2.8rem);line-height:1;margin-top:6px;text-shadow:0 2px 12px rgba(0,0,0,.2)}
+.cover .tr{font-family:var(--f-mono);font-size:.78rem;opacity:.9;margin-top:6px}
+.cover .num{display:inline-flex;font-family:var(--f-mono);font-size:.75rem;font-weight:600;background:rgba(0,0,0,.25);border-radius:999px;padding:3px 10px}
+.back{position:absolute;z-index:3;left:max(12px,env(safe-area-inset-left,0px));top:calc(12px + env(safe-area-inset-top,0px));width:42px;height:42px;border-radius:50%;border:0;background:rgba(0,0,0,.3);color:#fff;display:grid;place-items:center;cursor:pointer;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.sheet .body{display:grid;gap:16px;padding-block:18px}
+.bigplayer{padding:16px;display:grid;gap:12px}
+.bp-row{display:flex;align-items:center;gap:14px}
+.bp-row .pbtn{width:58px;height:58px}
+.bp-row .pbtn .ico{width:24px;height:24px}
+.skip{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;cursor:pointer;font:600 .68rem var(--f-mono);color:var(--ink)}
+.bp-info{flex:1;min-width:0}
+.bp-info b{display:block;font-weight:600}
+.bp-info span{font-family:var(--f-mono);font-size:.75rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.scrub{appearance:none;-webkit-appearance:none;width:100%;height:6px;border-radius:99px;background:linear-gradient(var(--cay),var(--cay)) 0/var(--p,0%) 100% no-repeat,var(--line);outline-offset:4px}
+.scrub::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--cay);border:3px solid var(--surface);box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.scrub::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--cay);border:3px solid var(--surface)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-size:.82rem;text-decoration:none;cursor:pointer}
+.chip .ico{width:16px;height:16px}
+.chip.primary{background:var(--sea);border-color:var(--sea);color:var(--sea-ink)}
+.chip.done[aria-pressed="true"]{background:var(--ok);border-color:var(--ok);color:#fff}
+.block{padding:16px}
+.block h3{font-family:var(--f-mono);font-weight:600;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.look{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.look li{display:grid;grid-template-columns:26px 1fr;gap:10px;align-items:start}
+.look li i{width:26px;height:26px;border-radius:8px;background:var(--cay-soft);color:var(--cay);display:grid;place-items:center;font:600 .72rem var(--f-mono);font-style:normal}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:10px}
+.fact{background:var(--raise);border-radius:12px;padding:10px 12px;min-width:0}
+.fact span{display:block;font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.fact b{font-weight:600;font-size:.92rem;line-height:1.3}
+.duo{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px}
+.curio{background:var(--sea);color:var(--sea-ink);border:0}
+.curio h3{color:var(--stripe)}
+.tipbox{background:var(--cay-soft);border-color:transparent}
+.tipbox h3{color:var(--cay)}
+.block p{margin:0}
+details.script{padding:16px}
+details.script summary{cursor:pointer;font-weight:600;list-style:none;display:flex;justify-content:space-between;align-items:center}
+details.script summary::-webkit-details-marker{display:none}
+details.script p{margin:.8em 0 0;max-width:65ch;color:var(--ink)}
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pager button{padding:14px;border-radius:14px;border:1px solid var(--line);background:var(--surface);text-align:left;cursor:pointer;display:grid;gap:2px;min-width:0}
+.pager button:last-child{text-align:right}
+.pager span{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.pager b{font-weight:600;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pager button[disabled]{visibility:hidden}
 
-/* Stops */
-.stops{list-style:none;margin:0;padding:0;display:grid;gap:0}
-.stop{position:relative;display:grid;grid-template-columns:44px 1fr;gap:14px;padding-bottom:26px}
-.stop::before{content:"";position:absolute;left:21px;top:44px;bottom:0;width:2px;background:repeating-linear-gradient(var(--line) 0 6px, transparent 6px 11px)}
-.stop:last-child::before{display:none}
-.num{width:44px;height:44px;border-radius:50%;border:2px solid var(--sea);display:grid;place-items:center;font-family:var(--f-mono);font-weight:600;background:var(--bg);position:relative;z-index:1}
-.stop.extra .num{border-color:var(--cay);border-style:dashed;color:var(--cay);font-size:.7rem}
-.stop.done .num{background:var(--ok);border-color:var(--ok);color:var(--surface)}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:grid;gap:14px;min-width:0}
-.stop.playing .card{border-color:var(--cay);box-shadow:0 0 0 3px color-mix(in srgb, var(--cay) 18%, transparent)}
-.walk{font-family:var(--f-mono);font-size:.72rem;color:var(--muted);letter-spacing:.04em;margin-bottom:6px;font-variant-numeric:tabular-nums}
-.card h3{font-size:1.5rem;line-height:1.1}
-.card .tr{color:var(--muted);margin-top:4px}
+/* Food */
+.place{display:grid;grid-template-columns:auto 1fr;gap:14px;padding:14px;align-items:start}
+.place .art{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;color:#fff}
+.place b{font-weight:600}
+.place p{margin:2px 0 6px;font-size:.88rem;color:var(--muted)}
+.tag{display:inline-block;font-family:var(--f-mono);font-size:.66rem;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:999px;background:var(--raise);color:var(--muted);margin-right:4px}
+.dict{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,210px),1fr));gap:10px}
+.dish{padding:14px;display:grid;gap:4px}
+.dish b{font-family:var(--f-display);font-weight:400;font-size:1.2rem}
+.dish .say{font-family:var(--f-mono);font-size:.7rem;color:var(--cay)}
+.dish p{margin:0;font-size:.86rem;color:var(--muted)}
+.filters{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.filters button{flex:none;padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-size:.84rem}
+.filters button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 
-.player{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;background:var(--bg);border-radius:12px;padding:10px 14px 10px 10px}
-.play{width:44px;height:44px;border-radius:50%;border:0;background:var(--sea);color:var(--sea-ink);display:grid;place-items:center;cursor:pointer;flex:none}
-.play svg{width:18px;height:18px;fill:currentColor}
-.stop.playing .play{background:var(--cay);color:#fff}
-.track{height:6px;border-radius:99px;background:var(--line);position:relative;cursor:pointer;min-width:0}
-.track i{position:absolute;inset:0 auto 0 0;width:0;border-radius:inherit;background:var(--cay)}
-.time{font-family:var(--f-mono);font-size:.75rem;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+/* Info */
+.timeline{list-style:none;margin:0;padding:0;position:relative}
+.timeline::before{content:"";position:absolute;left:62px;top:6px;bottom:6px;width:2px;background:var(--line)}
+.timeline li{display:grid;grid-template-columns:52px 1fr;gap:22px;padding:8px 0;position:relative}
+.timeline li::before{content:"";position:absolute;left:57px;top:15px;width:12px;height:12px;border-radius:50%;background:var(--surface);border:2px solid var(--sea)}
+.timeline li.now::before{background:var(--stripe);border-color:var(--stripe)}
+.timeline .y{font-family:var(--f-mono);font-weight:600;font-size:.82rem;text-align:right;padding-top:3px;font-variant-numeric:tabular-nums}
+.timeline p{margin:0;font-size:.92rem}
+.phrases{display:grid;gap:8px}
+.phrase{display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:12px 14px;align-items:center}
+.phrase b{font-weight:600}
+.phrase .say{font-family:var(--f-mono);font-size:.74rem;color:var(--cay)}
+.phrase .es{grid-row:span 2;color:var(--muted);font-size:.88rem;text-align:right}
+.kv{display:grid;gap:12px}
+.kv div{display:grid;grid-template-columns:34px 1fr;gap:12px;align-items:start}
+.kv i{width:34px;height:34px;border-radius:10px;background:var(--raise);display:grid;place-items:center;color:var(--sea-2)}
+.kv b{display:block;font-weight:600}
+.kv span{font-size:.88rem;color:var(--muted)}
+.foot{color:var(--muted);font-size:.78rem;padding-block:16px 0}
 
-.look h4{margin:0 0 6px;font-family:var(--f-mono);font-weight:600;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-.look ul{margin:0;padding-left:1.1em;display:grid;gap:4px}
-.look li::marker{color:var(--cay)}
-.tip{background:var(--cay-soft);border-radius:10px;padding:10px 14px;font-size:.92rem}
-.tip b{color:var(--cay)}
-.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.btn{font:inherit;font-size:.86rem;font-weight:500;display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);text-decoration:none;cursor:pointer}
-.btn:hover{border-color:var(--sea)}
-.btn.check[aria-pressed="true"]{background:var(--ok);border-color:var(--ok);color:var(--surface)}
-details.script summary{cursor:pointer;font-size:.86rem;color:var(--muted)}
-details.script p{margin:.6em 0 0;font-size:.95rem;max-width:65ch}
-
-/* Practical */
-.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:14px}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;min-width:0}
-.panel h3{font-size:1.25rem;margin-bottom:10px}
-.panel dl{margin:0;display:grid;gap:10px}
-.panel dt{font-weight:600}
-.panel dd{margin:0;color:var(--muted);font-size:.92rem}
-.phr{display:grid;grid-template-columns:1fr auto;gap:2px 14px;font-size:.93rem}
-.phr .t{font-weight:600}
-.phr .p{font-family:var(--f-mono);font-size:.75rem;color:var(--muted)}
-.phr .e{grid-column:2;grid-row:span 2;align-self:center;color:var(--muted);text-align:right}
-.phr > div{display:contents}
-.phr hr{grid-column:1/-1;border:0;border-top:1px solid var(--line);margin:6px 0;width:100%}
-footer{color:var(--muted);font-size:.8rem;margin-block:30px 10px}
-
-/* Dock */
-.dock{position:fixed;left:0;right:0;bottom:0;z-index:20;background:color-mix(in srgb, var(--surface) 94%, transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--line);padding-bottom:max(10px, env(safe-area-inset-bottom, 0px));padding-top:10px}
-.dock .wrap{display:grid;grid-template-columns:auto auto auto 1fr;gap:10px;align-items:center}
-.dock .ib{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);display:grid;place-items:center;cursor:pointer}
-.dock .ib svg{width:16px;height:16px;fill:currentColor}
-.dock .ib.main{width:46px;height:46px;background:var(--sea);border-color:var(--sea);color:var(--sea-ink)}
-.dock .meta{min-width:0}
-.dock .meta b{display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.95rem}
-.dock .meta span{font-family:var(--f-mono);font-size:.72rem;color:var(--muted)}
-.dock .mini{height:3px;background:var(--line);border-radius:3px;margin-top:6px;overflow:hidden}
-.dock .mini i{display:block;height:100%;width:0;background:var(--cay)}
-@media (prefers-reduced-motion: reduce){*{transition:none!important;scroll-behavior:auto!important}}
-html{scroll-behavior:smooth}
+/* Dock + tabs */
+.dock{position:fixed;left:0;right:0;bottom:calc(var(--tabs) + env(safe-area-inset-bottom,0px));z-index:80;background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line)}
+.dock .inner{display:grid;grid-template-columns:44px 1fr auto auto;gap:10px;align-items:center;height:var(--dock)}
+.dock .mini-art{width:44px;height:44px;border-radius:10px;display:grid;place-items:center;color:#fff;overflow:hidden;position:relative;cursor:pointer;border:0;padding:0}
+.dock .mini-art .ico{width:22px;height:22px;position:relative}
+.dock .txt{min-width:0;cursor:pointer}
+.dock .txt b{display:block;font-weight:600;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dock .txt span{font-family:var(--f-mono);font-size:.7rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.dock .pbtn{width:44px;height:44px}
+.dock .nx{width:40px;height:40px;border-radius:50%;border:0;background:transparent;display:grid;place-items:center;cursor:pointer}
+.dock .bar{position:absolute;left:0;top:-1px;height:2px;background:var(--cay);width:0}
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:80;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.tabs .inner{display:grid;grid-template-columns:repeat(4,1fr);height:var(--tabs)}
+.tabs a{display:grid;place-items:center;align-content:center;gap:3px;text-decoration:none;font-size:.7rem;font-weight:500;color:var(--muted)}
+.tabs a .ico{width:22px;height:22px}
+.tabs a[aria-current="page"]{color:var(--sea-2)}
+.tabs a[aria-current="page"] .ico{stroke-width:2.3}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tabs a[aria-current="page"]{color:var(--stripe)}}
+:root[data-theme="dark"] .tabs a[aria-current="page"]{color:var(--stripe)}
+@media (min-width:760px){.srow{grid-template-columns:130px 1fr}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
-<header class="hero">
-  <div class="wrap">
-    <div class="eyebrow">Estambul · orilla asiática · audioguía</div>
-    <h1>Kadıköy <em>&amp;</em> Moda<br>a pie</h1>
-    <p>Del muelle de ferris hasta la punta de Moda: mercado, iglesias, un toro viajero, una ópera que esperó 80 años y el mejor atardecer de la ciudad. Pulsa play en cada parada al llegar.</p>
-    <div class="route-line"><span>Kadıköy İskelesi</span><i></i><span>Moda Burnu</span></div>
-    <div class="ticket" aria-label="Datos de la ruta">
-      <div><span>Paradas</span><b>11 + 1</b></div>
-      <div><span>Distancia</span><b>≈ 3 km</b></div>
-      <div><span>A pie</span><b>2½–3 h</b></div>
-      <div><span>Audio</span><b id="totalAudio">—</b></div>
-    </div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+ <defs>
+  <symbol id="i-ferry" viewBox="0 0 48 48"><path d="M6 32h36l-4 8H10z"/><path d="M10 32v-8h26l4 8"/><path d="M15 24v-6h14v6"/><path d="M20 18v-6h5v6"/><path d="M14 28h3M21 28h3M28 28h3"/><path d="M2 44c4 0 4-2 8-2s4 2 8 2 4-2 8-2 4 2 8 2 4-2 8-2 4 2 4 2"/></symbol>
+  <symbol id="i-station" viewBox="0 0 48 48"><path d="M8 42V20l4-8 4 8v22"/><path d="M32 42V20l4-8 4 8v22"/><path d="M16 42V24h16v18"/><path d="M16 24l8-6 8 6"/><circle cx="24" cy="28" r="3"/><path d="M21 42v-6h6v6"/><path d="M4 42h40"/></symbol>
+  <symbol id="i-mural" viewBox="0 0 48 48"><rect x="6" y="6" width="36" height="36" rx="2"/><path d="M6 32l10-10 8 8 6-6 12 12"/><circle cx="32" cy="15" r="4"/><path d="M14 6v8M26 6v4"/></symbol>
+  <symbol id="i-dome" viewBox="0 0 48 48"><path d="M10 42V24h28v18"/><path d="M14 24a10 10 0 0 1 20 0"/><path d="M24 14V8M21 10h6"/><path d="M20 42v-9a4 4 0 0 1 8 0v9"/><path d="M6 42h36"/></symbol>
+  <symbol id="i-church" viewBox="0 0 48 48"><path d="M24 4v8M20 8h8"/><path d="M14 42V22l10-10 10 10v20"/><path d="M8 42V30h6M40 42V30h-6"/><path d="M21 42v-8a3 3 0 0 1 6 0v8"/><circle cx="24" cy="23" r="3"/></symbol>
+  <symbol id="i-fish" viewBox="0 0 48 48"><path d="M4 24c6-9 18-12 28-6l10-6v24l-10-6C22 36 10 33 4 24z"/><circle cx="12" cy="23" r="1.5"/><path d="M18 18c2 4 2 8 0 12"/></symbol>
+  <symbol id="i-vinyl" viewBox="0 0 48 48"><circle cx="24" cy="24" r="18"/><circle cx="24" cy="24" r="5"/><path d="M24 12a12 12 0 0 1 12 12M24 36a12 12 0 0 1-12-12"/></symbol>
+  <symbol id="i-bull" viewBox="0 0 48 48"><path d="M8 10c0 6 4 9 9 9M40 10c0 6-4 9-9 9"/><path d="M17 19c0-2 3-3 7-3s7 1 7 3v6c0 8-3 13-7 13s-7-5-7-13z"/><path d="M20 33c2 1 6 1 8 0"/><circle cx="20" cy="24" r="1"/><circle cx="28" cy="24" r="1"/></symbol>
+  <symbol id="i-opera" viewBox="0 0 48 48"><path d="M6 14l18-8 18 8"/><path d="M8 14h32"/><path d="M11 18v18M19 18v18M29 18v18M37 18v18"/><path d="M6 40h36M8 36h32"/></symbol>
+  <symbol id="i-glass" viewBox="0 0 48 48"><path d="M12 8h24l-12 16z"/><path d="M24 24v14M16 40h16"/><path d="M30 8l6-4"/><circle cx="34" cy="14" r="3"/></symbol>
+  <symbol id="i-cake" viewBox="0 0 48 48"><path d="M10 26h28v14H10z"/><path d="M10 32c4 3 8-3 12 0s8 3 12 0 4-1 4-1"/><path d="M14 26v-6h20v6"/><path d="M24 20v-6"/><path d="M24 14c-2-2 0-6 0-6s2 4 0 6z"/></symbol>
+  <symbol id="i-icecream" viewBox="0 0 48 48"><path d="M15 22l9 22 9-22"/><path d="M14 22a10 10 0 0 1 20 0z"/><path d="M18 14a6 6 0 0 1 12 0"/><path d="M19 28l10 0M21 34h6"/></symbol>
+  <symbol id="i-guitar" viewBox="0 0 48 48"><path d="M30 18L42 6"/><path d="M38 4l6 6"/><path d="M26 22c-3-4-11-3-14 1s-2 6 0 8-2 6 2 9 9 1 11-2 2-8 1-11"/><circle cx="20" cy="30" r="3"/><path d="M27 21l3-3"/></symbol>
+  <symbol id="i-pier" viewBox="0 0 48 48"><path d="M6 28h36"/><path d="M10 28v12M20 28v12M30 28v12M40 28v12"/><path d="M14 28V18l8-6 8 6v10"/><path d="M19 22h6"/><path d="M2 44c4 0 4-2 8-2s4 2 8 2 4-2 8-2 4 2 8 2 4-2 8-2"/></symbol>
+  <symbol id="i-sunset" viewBox="0 0 48 48"><path d="M14 30a10 10 0 0 1 20 0"/><path d="M24 10v6M10 16l4 4M38 16l-4 4M4 30h6M38 30h6"/><path d="M4 36h40M10 42h28"/></symbol>
+  <symbol id="i-ball" viewBox="0 0 48 48"><circle cx="24" cy="24" r="18"/><path d="M24 15l8 6-3 9h-10l-3-9z"/><path d="M24 15V6M32 21l8-4M29 30l5 8M19 30l-5 8M16 21l-8-4"/></symbol>
+  <symbol id="i-headphones" viewBox="0 0 24 24"><path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="3" y="14" width="4" height="7" rx="1.5"/><rect x="17" y="14" width="4" height="7" rx="1.5"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15l12.5-7.5z" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M6 4h4v16H6zM14 4h4v16h-4z" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-next" viewBox="0 0 24 24"><path d="M5 5l10 7-10 7z" fill="currentColor" stroke="none"/><path d="M18 5v14"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+  <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M8 19h7a3.5 3.5 0 0 0 0-7H9a3.5 3.5 0 0 1 0-7h7"/></symbol>
+  <symbol id="i-map" viewBox="0 0 24 24"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/></symbol>
+  <symbol id="i-food" viewBox="0 0 24 24"><path d="M7 3v8M5 3v5a2 2 0 0 0 4 0V3M7 11v10"/><path d="M17 21V3c-2 1-3 4-3 8h3"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-walk" viewBox="0 0 24 24"><circle cx="13" cy="4" r="2"/><path d="M10 21l2-6-3-3 1-5 4 3 3 1M8 12l-2 3"/><path d="M12 15l3 6"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></symbol>
+  <symbol id="i-locate" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17v.5"/></symbol>
+  <symbol id="i-tram" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="13" rx="2"/><path d="M5 12h14M9 21l1-3M15 21l-1-3M9 2h6M12 2v3"/></symbol>
+  <symbol id="i-euro" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M10 7v10M10 12h5M14 8l-4-1"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></symbol>
+  <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18a4 4 0 0 1-.5-8A6 6 0 0 1 18 9a4.5 4.5 0 0 1-.5 9z"/><path d="M9 21l1-2M14 21l1-2"/></symbol>
+  <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M8 3l-5 3 2 4 3-1v12h8V9l3 1 2-4-5-3a4 4 0 0 1-8 0z"/></symbol>
+  <symbol id="i-cup" viewBox="0 0 24 24"><path d="M7 8h10l-1.5 12h-7z"/><path d="M6 8c0-2 2-3 6-3s6 1 6 3"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
+ </defs>
+</svg>
+
+<header class="top pad">
+  <div class="inner">
+    <div class="brand"><span class="logo"><svg class="ico" style="width:20px;height:20px"><use href="#i-ferry"/></svg></span><b>Kadıköy &amp; Moda</b></div>
+    <div class="ring" aria-label="Progreso"><span id="ringTxt">0/15</span><svg viewBox="0 0 36 36"><circle class="bgc" cx="18" cy="18" r="15" fill="none" stroke-width="4"/><circle class="fgc" id="ringFg" cx="18" cy="18" r="15" fill="none" stroke-width="4" stroke-linecap="round" stroke-dasharray="94.25" stroke-dashoffset="94.25"/></svg></div>
   </div>
-  <div class="stripe" aria-hidden="true"></div>
 </header>
+<div class="topstripe" aria-hidden="true"></div>
 
-<main class="wrap">
-  <div class="notices">
-    <div class="notice today"><span class="tag">Hoy · 4 nov</span><p><strong>Fenerbahçe – Liverpool a las 20:45</strong> en el estadio de Kadıköy. Desde media tarde habrá mucha gente y policía por el centro, y los ferris de vuelta irán llenos después del partido. Si hacéis la ruta hoy, empezad pronto.</p></div>
-    <div class="notice"><span class="tag">Transporte</span><p>El tranvía histórico Kadıköy–Moda está parado por obras desde octubre. Mientras tanto hay minibuses eléctricos por el mismo recorrido.</p></div>
+<main>
+ <!-- RUTA -->
+ <section class="view" id="v-ruta" aria-label="Ruta">
+  <div class="pad"><div class="inner stack">
+   <div class="hero">
+    <svg class="waves ico" viewBox="0 0 48 48" aria-hidden="true"><use href="#i-ferry"/></svg>
+    <div class="eyebrow">Estambul · orilla asiática · audioguía</div>
+    <h1>Kadıköy <em>&amp;</em><br>Moda a pie</h1>
+    <p>Del muelle de ferris a la punta de Moda: mercado, iglesias escondidas, murales, un toro viajero, una ópera que esperó 80 años y el mejor atardecer de la ciudad.</p>
+    <div class="stats"><div><b>15+1</b><span>Paradas</span></div><div><b>3,5 km</b><span>A pie</span></div><div><b id="totAudio">—</b><span>Audio</span></div><div><b>17:05</b><span>Atardecer</span></div></div>
+    <div class="stripe"></div>
+   </div>
+
+   <div class="card intro">
+    <div class="art"><svg class="ico"><use href="#i-headphones"/></svg></div>
+    <div><b>Antes de empezar</b><span id="introDur">Escuchadlo en el ferry</span></div>
+    <button class="pbtn" data-play="intro" aria-label="Escuchar la introducción"><svg class="ico"><use href="#i-play"/></svg></button>
+   </div>
+
+   <div class="alerts">
+    <div class="card alert today"><div class="badge"><svg class="ico"><use href="#i-ball"/></svg></div><p><strong>Hoy, 4 nov · Fenerbahçe – Liverpool, 20:45</strong>Desde media tarde habrá mucha gente y policía por el centro, y los ferris de vuelta irán llenos tras el partido. Si hacéis la ruta hoy, empezad pronto.</p></div>
+    <div class="card alert"><div class="badge"><svg class="ico"><use href="#i-tram"/></svg></div><p><strong>Tranvía de Moda en obras</strong>Parado desde octubre. Hay minibuses eléctricos por el mismo recorrido.</p></div>
+   </div>
+
+   <div class="sec-title"><h2>Plan del día</h2><span class="eyebrow">Orientativo</span></div>
+   <div class="hscroll" id="plan"></div>
+
+   <div class="sec-title"><h2>Las paradas</h2><span class="eyebrow">Toca para abrir</span></div>
+   <ol class="stops" id="list"></ol>
+  </div></div>
+ </section>
+
+ <!-- MAPA -->
+ <section class="view" id="v-mapa" aria-label="Mapa">
+  <div class="mapwrap">
+   <div id="map" role="region" aria-label="Mapa de la ruta"></div>
+   <div id="schematic"></div>
+   <div class="mapfab">
+    <button class="fab" id="fitBtn" aria-label="Ver toda la ruta"><svg class="ico"><use href="#i-route"/></svg></button>
+    <button class="fab" id="meBtn" aria-label="Mi ubicación"><svg class="ico"><use href="#i-locate"/></svg></button>
+   </div>
+   <div class="mapnote" id="mapNote">Toca un número para ver la parada</div>
   </div>
+ </section>
 
-  <section aria-labelledby="h-map">
-    <div class="sec-head"><h2 id="h-map">La ruta</h2><div class="progress" style="min-width:200px;flex:1;max-width:280px"><span id="doneTxt">0 de 11</span><div class="bar"><i id="doneBar"></i></div></div></div>
-    <div class="map"><svg id="map" viewBox="0 0 340 400" role="img" aria-label="Esquema de la ruta"></svg>
-      <p class="note">Esquema orientativo, no a escala. Toca una parada para ir a ella. Usa «Cómo llegar» en cada parada para el mapa real.</p></div>
-  </section>
+ <!-- COMER -->
+ <section class="view" id="v-comer" aria-label="Comer">
+  <div class="pad"><div class="inner stack">
+   <div class="sec-title"><h2>Dónde comer</h2><span class="eyebrow">En la ruta</span></div>
+   <div class="stack" id="places" style="gap:10px"></div>
+   <div class="sec-title"><h2>Qué pedir</h2><span class="eyebrow">Diccionario</span></div>
+   <div class="filters" id="filters" role="group" aria-label="Filtrar platos"></div>
+   <div class="dict" id="dict"></div>
+  </div></div>
+ </section>
 
-  <section aria-labelledby="h-stops">
-    <div class="sec-head"><h2 id="h-stops">Paradas</h2><span class="eyebrow">Marca cada una al terminar</span></div>
-    <ol class="stops" id="stops"></ol>
-  </section>
-
-  <section aria-labelledby="h-info">
-    <div class="sec-head"><h2 id="h-info">Para el grupo</h2></div>
-    <div class="grid2">
-      <div class="panel">
-        <h3>Dónde comer y picar</h3>
-        <dl>
-          <dt>Çiya Sofrası</dt><dd>Güneşlibahçe Sokak. Cocina de toda Anatolia; pedid varios platos para compartir.</dd>
-          <dt>Mercado de Kadıköy</dt><dd>Midye dolma, bocadillo de pescado, turşu, börek. Para ir picando por el camino.</dd>
-          <dt>Baylan</dt><dd>Pastelería clásica de 1961. El postre de la casa es el Kup Griye.</dd>
-          <dt>Ali Usta</dt><dd>Helado al estilo de Maraş en Moda Caddesi.</dd>
-          <dt>Jardines de té de Moda</dt><dd>Çay y simit frente al mar para cerrar la ruta al atardecer.</dd>
-        </dl>
-      </div>
-      <div class="panel">
-        <h3>Cuatro frases</h3>
-        <div class="phr">
-          <div><span class="t">Merhaba</span><span class="e">Hola</span><span class="p">merjabá</span></div><hr>
-          <div><span class="t">Teşekkürler</span><span class="e">Gracias</span><span class="p">teshekkurlér</span></div><hr>
-          <div><span class="t">Bir çay, lütfen</span><span class="e">Un té, por favor</span><span class="p">bir chai, lutfén</span></div><hr>
-          <div><span class="t">Hesap, lütfen</span><span class="e">La cuenta, por favor</span><span class="p">jesáp, lutfén</span></div><hr>
-          <div><span class="t">Ne kadar?</span><span class="e">¿Cuánto cuesta?</span><span class="p">ne kadár</span></div>
-        </div>
-      </div>
-      <div class="panel">
-        <h3>Cómo llegar</h3>
-        <dl>
-          <dt>En ferry</dt><dd>Desde Eminönü, Karaköy o Beşiktaş hasta Kadıköy, unos 20–25 minutos. Pagad con la Istanbulkart.</dd>
-          <dt>En Marmaray</dt><dd>El tren bajo el Bósforo para en Ayrılık Çeşmesi; desde ahí, metro M4 una parada hasta Kadıköy.</dd>
-          <dt>Vuelta desde Moda</dt><dd>A pie al muelle de Kadıköy, unos 20 minutos, o en los minibuses eléctricos.</dd>
-        </dl>
-      </div>
-      <div class="panel">
-        <h3>Antes de salir</h3>
-        <dl>
-          <dt>Auriculares</dt><dd>Mejor uno por persona, o un móvil con altavoz por grupo.</dd>
-          <dt>Iglesias</dt><dd>Hombros cubiertos y en silencio. Son templos en uso.</dd>
-          <dt>Atardecer</dt><dd>A principios de noviembre, poco después de las cinco. Planificad para llegar a la punta de Moda antes.</dd>
-          <dt>Calzado</dt><dd>Hay cuestas y adoquines en Moda.</dd>
-        </dl>
-      </div>
-    </div>
-  </section>
-  <footer>Audioguía preparada para el viaje del grupo, del 2 al 9 de noviembre de 2026. Las paradas marcadas se guardan solo en tu móvil.</footer>
+ <!-- INFO -->
+ <section class="view" id="v-info" aria-label="Información">
+  <div class="pad"><div class="inner stack">
+   <div class="sec-title"><h2>Frases útiles</h2><span class="eyebrow">Con pronunciación</span></div>
+   <div class="phrases" id="phrases"></div>
+   <div class="sec-title"><h2>Kadıköy en el tiempo</h2></div>
+   <div class="card block"><ol class="timeline" id="timeline"></ol></div>
+   <div class="sec-title"><h2>Práctico</h2></div>
+   <div class="card block"><div class="kv" id="practical"></div></div>
+   <p class="foot">Audioguía del viaje del grupo a Estambul, del 2 al 9 de noviembre de 2026. Las paradas marcadas se guardan solo en tu móvil. Horarios y precios pueden cambiar.</p>
+  </div></div>
+ </section>
 </main>
 
-<div class="dock" role="region" aria-label="Reproductor">
-  <div class="wrap">
-    <button class="ib" id="prev" aria-label="Parada anterior"><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button>
-    <button class="ib main" id="dockPlay" aria-label="Reproducir"><svg viewBox="0 0 24 24" id="dockIcon"><path d="M7 4v16l13-8z"/></svg></button>
-    <button class="ib" id="next" aria-label="Parada siguiente"><svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button>
-    <div class="meta"><b id="dockName">1 · Muelle de Kadıköy</b><span id="dockTime">Pulsa play para empezar</span><div class="mini"><i id="dockBar"></i></div></div>
-  </div>
+<!-- STOP SHEET -->
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sTitle"></div>
+
+<div class="dock pad" role="region" aria-label="Reproductor">
+ <div class="bar" id="dBar"></div>
+ <div class="inner">
+  <button class="mini-art" id="dArt" aria-label="Abrir parada"></button>
+  <div class="txt" id="dTxt"><b id="dName">Antes de empezar</b><span id="dTime">Pulsa play para empezar</span></div>
+  <button class="pbtn" id="dPlay" aria-label="Reproducir"><svg class="ico"><use href="#i-play"/></svg></button>
+  <button class="nx" id="dNext" aria-label="Siguiente audio"><svg class="ico"><use href="#i-next"/></svg></button>
+ </div>
 </div>
+<nav class="tabs" aria-label="Secciones">
+ <div class="inner">
+  <a href="#ruta" data-tab="ruta"><svg class="ico"><use href="#i-route"/></svg>Ruta</a>
+  <a href="#mapa" data-tab="mapa"><svg class="ico"><use href="#i-map"/></svg>Mapa</a>
+  <a href="#comer" data-tab="comer"><svg class="ico"><use href="#i-food"/></svg>Comer</a>
+  <a href="#info" data-tab="info"><svg class="ico"><use href="#i-info"/></svg>Info</a>
+ </div>
+</nav>
 <audio id="audio" preload="none"></audio>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
 <script>
-const STOPS = [{"id": "iskele", "name": "Muelle de Kadıköy", "tr": "Kadıköy İskelesi", "walk": "Inicio", "maps": "Kadıköy İskelesi", "x": 0.34, "y": 0.1, "look": ["Los ferris que llegan desde Eminönü y Karaköy", "Al norte, la estación de Haydarpaşa con sus tejados en punta", "Las gaviotas y los vendedores de simit en el muelle"], "tip": "Paga el ferry con la Istanbulkart: es más barato que el billete suelto y sirve para metro, tranvía y autobús.", "text": "Bienvenidos a Kadıköy, en la orilla asiática de Estambul. Acabáis de cruzar de continente en veinte minutos de ferry.\n\nEste barrio es mucho más antiguo que la propia Estambul. Aquí estaba Calcedonia, una colonia griega fundada por gente de Megara. Cuenta la leyenda que, años después, otro griego llamado Bízas preguntó al oráculo de Delfos dónde fundar su ciudad, y el oráculo le respondió: enfrente de la tierra de los ciegos. Al llegar aquí y ver la otra orilla, con su puerto natural, entendió que los de Calcedonia habían sido unos ciegos por no elegirla. Allí fundó Bizancio, que luego sería Constantinopla y hoy Estambul. Por eso a Kadıköy todavía se le llama, medio en broma, el país de los ciegos.\n\nSi miráis hacia el norte, veréis el edificio con aspecto de castillo: la estación de Haydarpaşa, inaugurada en mil novecientos ocho y diseñada por arquitectos alemanes como cabecera del ferrocarril hacia Anatolia y Bagdad. Ahora está en restauración para convertirse en centro cultural.\n\nHoy Kadıköy es el barrio con más vida de la parte asiática: mercados, cafés, librerías, bares y mucha gente joven. Empezamos la ruta. Cruzad la avenida por el paso subterráneo y entrad hacia el mercado.", "dur": 70, "file": "audio/iskele.mp3"}, {"id": "efimia", "name": "Iglesia de Santa Eufemia", "tr": "Aya Efimia Rum Ortodoks Kilisesi", "walk": "4 min", "maps": "Aya Efimia Kilisesi Kadıköy", "x": 0.27, "y": 0.27, "look": ["La puerta discreta entre los puestos del mercado", "El patio interior y los iconos ortodoxos", "Las velas que encienden los fieles al entrar"], "tip": "Es una iglesia en uso: entrad en silencio, sin gorra y con los hombros cubiertos.", "text": "Escondida entre los puestos del mercado está esta pequeña iglesia ortodoxa griega, dedicada a Santa Eufemia, una joven cristiana de Calcedonia que murió mártir a comienzos del siglo cuarto por negarse a adorar a los dioses paganos.\n\nSu nombre tiene mucho peso en la historia. En el año cuatrocientos cincuenta y uno se celebró aquí, en Calcedonia, uno de los concilios más importantes del cristianismo, y se reunió precisamente en la gran basílica dedicada a Santa Eufemia. Ese concilio fijó la idea de que Cristo tiene dos naturalezas, divina y humana, y su decisión acabó separando a varias iglesias de Oriente que todavía hoy siguen caminos distintos. La basílica original desapareció hace siglos, pero el recuerdo de la santa sigue en esta iglesia.\n\nTambién os habla de cómo era Kadıköy hace no tanto: un barrio donde convivían griegos, armenios, judíos, levantinos y turcos. A pocas calles hay también una iglesia armenia, y más adelante veréis las casas de las familias levantinas de Moda.\n\nSalid de nuevo al mercado. La siguiente parada está a la vuelta de la esquina.", "dur": 62, "file": "audio/efimia.mp3"}, {"id": "carsi", "name": "Mercado de Kadıköy", "tr": "Kadıköy Çarşısı · Güneşlibahçe Sokak", "walk": "2 min", "maps": "Güneşlibahçe Sokak Kadıköy", "x": 0.4, "y": 0.3, "look": ["Los puestos de pescado con las agallas rojas a la vista", "Las tiendas de encurtidos, con tarros de colores", "Quesos, aceitunas, especias y frutos secos al peso"], "tip": "Para comer: Çiya Sofrası, en esta misma calle, es cocina tradicional de Anatolia. Pedid varios platos al centro.", "text": "Esto es el mercado de Kadıköy, y la calle principal es Güneşlibahçe. Aquí compran los vecinos de verdad, no es un mercado para turistas.\n\nFijaos en el pescado: los puestos dejan las agallas abiertas y bien rojas para demostrar que es fresco. En otoño es temporada de bonito y de hamsi, la anchoa del mar Negro, y veréis bocadillos de pescado a la plancha por toda la zona.\n\nLas tiendas con tarros de colores son de turşu, encurtidos. Pepino, col, zanahoria, guindilla. Muchos venden también el caldo del encurtido para beber en vaso. Es fuerte y salado; probadlo al menos una vez.\n\nMás cosas para picar: midye dolma, mejillones rellenos de arroz con especias que se comen con un chorro de limón, y kokoreç, un bocadillo de tripas de cordero a la plancha. Si no os atrevéis, siempre hay börek, simit y baklava.\n\nSi queréis comer sentados, en esta calle está Çiya Sofrası, un restaurante muy conocido del cocinero Musa Dağdeviren, que se dedica a recuperar recetas de toda Anatolia: guisos, kebabs, verduras rellenas y postres que no veréis en otros sitios.\n\nSeguid hacia el interior del barrio. Vamos a una galería de libros y discos.", "dur": 66, "file": "audio/carsi.mp3"}, {"id": "akmar", "name": "Pasaje Akmar", "tr": "Akmar Pasajı", "walk": "4 min", "maps": "Akmar Pasajı Kadıköy", "x": 0.52, "y": 0.27, "look": ["Librerías de segunda mano apiladas hasta el techo", "Vinilos de rock turco de los setenta", "Cómics, fanzines y carteles antiguos"], "tip": "Un vinilo de rock anatolio es un buen recuerdo y ocupa poco en la maleta.", "text": "El pasaje Akmar es una galería estrecha llena de librerías de segunda mano, tiendas de discos, cómics y revistas antiguas.\n\nEs un buen resumen del carácter de Kadıköy. Este lado de la ciudad tiene fama de ser el más universitario, cultural y alternativo de Estambul. Aquí hay salas de conciertos, teatros pequeños, cines y mucha escena musical.\n\nSi os gusta la música, buscad vinilos de rock anatolio de los años sesenta y setenta. Es una mezcla de rock psicodélico con instrumentos y melodías turcas, y artistas como Barış Manço, que vivió en Moda y del que hablaremos más tarde, fueron grandes figuras de ese estilo.\n\nNo hace falta comprar nada: dad una vuelta, curiosead y salid por el otro extremo. La siguiente parada es el símbolo del barrio: un toro.", "dur": 44, "file": "audio/akmar.mp3"}, {"id": "boga", "name": "El Toro de Kadıköy", "tr": "Boğa Heykeli · Altıyol", "walk": "2 min", "maps": "Kadıköy Boğa Heykeli Altıyol", "x": 0.62, "y": 0.33, "look": ["La firma del escultor y la fecha 1864 en el bronce", "La plaza de seis calles que le da nombre: Altıyol", "Gente quedando aquí para verse"], "tip": "Desde aquí, el estadio del Fenerbahçe queda a unos 10 minutos a pie. Mirad la parada extra al final.", "text": "Este es el toro de Kadıköy, en la plaza de Altıyol, que significa seis caminos. Para los vecinos es el punto de encuentro por excelencia: quedar en el toro es como quedar en el oso y el madroño en Madrid.\n\nEl toro tiene más viajes que nosotros. Es una escultura de bronce francesa, firmada por el escultor Isidore Bonheur en mil ochocientos sesenta y cuatro. Hay dos versiones sobre cómo llegó a Estambul: una dice que la encargó el sultán Abdülaziz, y otra que fue un regalo de Alemania al militar otomano Enver Pachá en mil novecientos diecisiete.\n\nLo que sí se sabe es que estuvo en palacios, en una granja privada en los bosques de Belgrado, en el patio de un instituto, delante de un palacio de congresos y hasta en la entrada del hotel Hilton. En mil novecientos ochenta y siete llegó por fin a esta plaza. Años después, Patrimonio Nacional pidió que volviera a un palacio, pero el ayuntamiento de Kadıköy se negó, y en dos mil dieciocho se decidió que este sería su sitio definitivo.\n\nHaceos la foto de grupo aquí. Después, tomad la calle peatonal Bahariye, en dirección sur.", "dur": 61, "file": "audio/boga.mp3"}, {"id": "opera", "name": "Calle Bahariye y Ópera Süreyya", "tr": "Bahariye Caddesi · Süreyya Operası", "walk": "3 min", "maps": "Süreyya Operası Kadıköy", "x": 0.66, "y": 0.47, "look": ["La fachada de la ópera, con aire de teatro parisino", "Las tiendas, cafés y librerías de Bahariye", "Los músicos callejeros los fines de semana"], "tip": "Si os apetece un plan de noche, mirad la cartelera de la ópera: las entradas suelen ser bastante asequibles.", "text": "Estamos en la calle Bahariye, una de las más animadas del barrio, y delante tenéis la Ópera Süreyya.\n\nLa mandó construir Süreyya Paşa, un diputado de Estambul que viajaba mucho y quería traer a este lado de la ciudad un teatro como los que veía en Europa. Las obras empezaron en mil novecientos veinticuatro y se inauguró en mil novecientos veintisiete. Dicen que la entrada y el vestíbulo se inspiraron en el Teatro de los Campos Elíseos de París.\n\nPero hubo un problema: el escenario nunca se terminó del todo, así que durante décadas el edificio funcionó como cine. Después se usó para comercios, y llegó a tener hasta un taller de sastrería dentro, que dañó las pinturas originales.\n\nEn dos mil cinco el ayuntamiento de Kadıköy lo alquiló y lo restauró a fondo. En octubre de dos mil siete reabrió por fin como lo que siempre quiso ser: un teatro de ópera. Ochenta años de espera.\n\nSeguid un poco más por Bahariye y girad hacia la calle Kadife, la calle de los bares.", "dur": 55, "file": "audio/opera.mp3"}, {"id": "kadife", "name": "Calle Kadife", "tr": "Kadife Sokak · Barlar Sokağı", "walk": "4 min", "maps": "Kadife Sokak Kadıköy", "x": 0.55, "y": 0.55, "look": ["Las casas antiguas de madera y piedra convertidas en bares", "Los murales y grafitis de las fachadas", "Por la noche: música en directo y terrazas llenas"], "tip": "De día está tranquila. Si os gusta, volved por la noche para tomar algo.", "text": "Esta es la calle Kadife, aunque todo el mundo la llama Barlar Sokağı, la calle de los bares.\n\nDe día parece una calle residencial normal, con casas antiguas de dos o tres plantas. De noche cambia por completo: casi cada portal es un bar, con música rock, electrónica o música en directo, cerveza artesana y mucha gente joven en la calle.\n\nEs un buen sitio para entender una cosa de Kadıköy: este barrio es, para muchos turcos, sinónimo de libertad y de ambiente desenfadado. Aquí vienen estudiantes, músicos y artistas de toda la ciudad.\n\nSi queréis una noche de copas tranquila y local, este es vuestro sitio. Volved más tarde. Ahora bajamos hacia Moda, el barrio junto al mar.", "dur": 39, "file": "audio/kadife.mp3"}, {"id": "baylan", "name": "Pastelería Baylan", "tr": "Baylan Pastanesi · Muvakkithane Caddesi", "walk": "5 min", "maps": "Baylan Pastanesi Kadıköy", "x": 0.44, "y": 0.62, "look": ["El letrero y el mostrador de estilo antiguo", "El jardín interior", "El Kup Griye en la carta"], "tip": "Pedid un Kup Griye para compartir y un café turco.", "text": "Esta es la pastelería Baylan, una institución en Kadıköy. Abrió aquí en mil novecientos sesenta y uno, y mantiene ese ambiente de pastelería clásica que ya cuesta encontrar.\n\nSu postre más famoso es el Kup Griye: una copa de helado con crema de caramelo, almendras y nata. Es un postre de los que los mayores del barrio recuerdan de su infancia, y por eso tiene algo de nostálgico.\n\nSi preferís algo más turco, pedid un café turco. Se sirve sin filtrar, con el poso en el fondo de la taza, así que no os lo bebáis hasta el final. Y lo acompañan casi siempre con un vasito de agua y un trozo de lokum, la delicia turca.\n\nA partir de aquí empieza Moda. Fijaos en cómo cambian las calles: más tranquilas, más arboladas y con casas más señoriales.", "dur": 44, "file": "audio/baylan.mp3"}, {"id": "moda", "name": "Calle Moda", "tr": "Moda Caddesi", "walk": "6 min", "maps": "Dondurmacı Ali Usta Moda", "x": 0.38, "y": 0.75, "look": ["Las casas levantinas con miradores y jardines", "La heladería Ali Usta, con cola a cualquier hora", "Los cafés de barrio con mesas en la acera"], "tip": "Ali Usta tiene muchísimos sabores. Pedid probar antes de elegir.", "text": "Bienvenidos a Moda. En el siglo diecinueve esta península era una zona de veraneo y de casas elegantes, donde vivían muchas familias levantinas, es decir, comerciantes europeos asentados en el Imperio otomano. Entre ellas, la familia inglesa Whittall, una de las más conocidas. También vivían aquí muchas familias griegas y armenias.\n\nEsa mezcla se nota todavía en las casas, con miradores, jardines y fachadas que recuerdan más a una ciudad europea que a la Estambul de las postales.\n\nEn Moda vivió también Barış Manço, el cantante del que os hablé en el pasaje Akmar. Fue una estrella enorme en Turquía, mezcla de rock y música tradicional, y su casa en este barrio es hoy un museo.\n\nY una parada obligada de la calle: Ali Usta, una heladería muy popular con helado al estilo de Maraş, más elástico y denso que el italiano. Siempre hay cola, pero va rápido.\n\nSeguid bajando hacia el mar. El muelle de Moda está a pocos minutos.", "dur": 56, "file": "audio/moda.mp3"}, {"id": "modaiskele", "name": "Muelle de Moda", "tr": "Moda İskelesi", "walk": "6 min", "maps": "Moda İskelesi", "x": 0.22, "y": 0.86, "look": ["El edificio blanco del muelle, de 1917", "Al otro lado del agua: el perfil de la península histórica", "Los pescadores con caña en el paseo"], "tip": "En el muelle hay un café: buen sitio para descansar las piernas con vistas.", "text": "Este es el muelle de Moda, construido en mil novecientos diecisiete y restaurado hace pocos años. Hoy funciona como café, con una pequeña biblioteca y vistas al agua.\n\nMirad al frente, al otro lado del mar. Lo que se ve en el horizonte es la península histórica de Estambul, la parte vieja de la ciudad. Con buena visibilidad se distinguen las cúpulas y minaretes de Santa Sofía, la Mezquita Azul y el palacio de Topkapı.\n\nPensad que, para los que vivían aquí, esa era la vista diaria: la capital del imperio al otro lado del agua.\n\nHacia el sur, a la izquierda, en los días claros se ven las Islas de los Príncipes, un archipiélago sin coches al que se puede ir en ferry. Si os sobra un día, es una buena excursión.\n\nCaminad por el paseo hacia la punta de Moda. Es la última parada, y el mejor sitio para ver atardecer.", "dur": 46, "file": "audio/modaiskele.mp3"}, {"id": "burnu", "name": "Punta de Moda", "tr": "Moda Burnu · Moda Sahili", "walk": "5 min", "maps": "Moda Burnu Kadıköy", "x": 0.35, "y": 0.94, "look": ["El atardecer sobre la península histórica", "Los jardines de té con vistas al mar", "Gente sentada en las rocas con çay y pipas"], "tip": "A principios de noviembre el sol se pone poco después de las cinco. Llegad un poco antes para coger sitio.", "text": "Hemos llegado a la punta de Moda, y no hay mejor final para la ruta. Aquí los vecinos vienen a sentarse en las rocas o en los jardines de té para ver cómo el sol se pone detrás de la península histórica.\n\nEs el momento perfecto para un çay. El té turco se toma en vasos pequeños con forma de tulipán, sin leche y con terrones de azúcar al gusto. Se sirve muy caliente: agarrad el vaso por el borde de arriba para no quemaros. Lo normal es pedir uno detrás de otro sin prisa. Y si queréis algo para acompañar, un simit, el pan con sésamo que habréis visto por todas partes.\n\nUn par de palabras útiles: bir çay, lütfen, un té por favor. Y teşekkürler, gracias.\n\nPara volver, podéis deshacer el camino a pie hasta el muelle de Kadıköy, unos veinte minutos, o coger uno de los minibuses eléctricos que conectan Moda con el centro.\n\nGracias por hacer esta ruta. Disfrutad de Estambul.", "dur": 50, "file": "audio/burnu.mp3"}, {"id": "fener", "name": "Estadio del Fenerbahçe", "tr": "Chobani Stadyumu · Şükrü Saracoğlu", "walk": "Extra · 10 min desde el Toro", "maps": "Şükrü Saracoğlu Stadyumu", "extra": true, "x": 0.9, "y": 0.4, "look": ["La tienda oficial del club", "El fondo amarillo y azul marino del estadio", "El ambiente en los alrededores en día de partido"], "tip": "Hoy, miércoles 4 de noviembre, el Fenerbahçe juega contra el Liverpool a las 20:45. El barrio se llenará desde la tarde.", "text": "Esta es una parada extra para los futboleros. A unos diez minutos del toro está el estadio del Fenerbahçe, hoy llamado Chobani Stadyumu Şükrü Saracoğlu.\n\nEl Fenerbahçe nació aquí, en Kadıköy, en mil novecientos siete, y es uno de los tres grandes del fútbol turco junto al Galatasaray y el Beşiktaş. Su nombre viene de la punta de Fenerbahçe, un cabo cercano con un faro: fener significa faro.\n\nEl estadio está en el lugar del antiguo Papazın Çayırı, el prado del cura, uno de los primeros campos donde se jugó al fútbol en la ciudad. El nombre de Şükrü Saracoğlu recuerda a un antiguo presidente del club que también fue primer ministro de Turquía.\n\nSi os coincide un partido, el ambiente es espectacular: es uno de los estadios más ruidosos de Europa. Y aunque no haya partido, la tienda oficial y el exterior merecen una visita. Los colores son el amarillo y el azul marino, así que cuidado con lo que lleváis puesto si cruzáis luego a otros barrios.", "dur": 54, "file": "audio/fener.mp3"}];
-const PLAY='<path d="M7 4v16l13-8z"/>', PAUSE='<path d="M6 4h4v16H6zM14 4h4v16h-4z"/>';
-const audio=document.getElementById('audio');
-let cur=0;
-const KEY='kdk-moda-done';
-let done=new Set();
+const DATA={"intro": {"id": "intro", "name": "Antes de empezar", "tr": "Hoş geldiniz", "text": "Hola a todos y bienvenidos a esta audioguía por Kadıköy y Moda, en la orilla asiática de Estambul.\n\nLa ruta tiene quince paradas y una extra para los futboleros. Son unos tres kilómetros y medio a pie, y con calma, comida y paradas para picar, os llevará casi todo el día. La idea es llegar a la punta de Moda justo antes del atardecer, que a principios de noviembre es poco después de las cinco.\n\nEn cada parada tenéis un audio como este. Escuchadlo al llegar, con el sitio delante. En la ficha de cada parada veréis también qué mirar, datos rápidos, una curiosidad y un botón para abrir el camino en el mapa.\n\nUn poco de contexto antes de arrancar. Estambul está partida en dos por el Bósforo. La parte europea es la de las postales: Santa Sofía, la Mezquita Azul, el Gran Bazar. La parte asiática es donde vive mucha gente de la ciudad, y Kadıköy es su corazón: un barrio con más de dos mil seiscientos años de historia, que hoy tiene fama de ser el más abierto, joven y cultural de Estambul.\n\nVais a ver iglesias griegas y armenias escondidas en el mercado, una estación de tren que parece un castillo alemán, murales gigantes, un toro de bronce con más viajes que vosotros y una ópera que tardó ochenta años en estrenar su primera ópera. Y vais a comer muy bien.\n\nCuando estéis en el muelle de Kadıköy, pulsad el audio de la primera parada. Vamos allá.", "dur": 80, "file": "audio/intro.mp3"}, "stops": [{"id": "iskele", "name": "Muelle de Kadıköy", "tr": "Kadıköy İskelesi", "walk": 0, "lat": 40.9922, "lng": 29.023, "maps": "Kadıköy İskelesi", "icon": "ferry", "hue": 205, "look": ["Los ferris blancos que llegan desde Eminönü, Karaköy y Beşiktaş", "Al norte, la estación de Haydarpaşa con sus tejados en punta", "Los carritos de simit y las gaviotas sobre los barcos"], "facts": [["Fundación", "Hacia el 685 a. C., como Calcedonia"], ["Nombre turco", "Kadıköy, «el pueblo del juez»"], ["Ferry a Kabataş", "57 TL con Istanbulkart"]], "curio": "Las gaviotas siguen a los ferris porque los pasajeros les tiran trozos de simit. Si os sentáis fuera, cuidado con el bocadillo.", "tip": "Si venís en ferry, sentaos en la cubierta de atrás: las mejores vistas del Bósforo son al salir del muelle.", "text": "Estamos en el muelle de Kadıköy, la puerta de entrada a la orilla asiática. Cada pocos minutos llegan ferris desde la parte europea, y por aquí pasan cada día decenas de miles de personas que viven en un continente y trabajan en el otro.\n\nEste barrio es mucho más antiguo que la propia Estambul. Hacia el año seiscientos ochenta y cinco antes de Cristo, colonos griegos de la ciudad de Megara fundaron aquí Calcedonia. Unos años después, cuenta la leyenda, otro griego llamado Bízas preguntó al oráculo de Delfos dónde fundar su ciudad, y el oráculo le respondió: enfrente de la tierra de los ciegos. Al llegar y ver la otra orilla, con su puerto natural y su colina fácil de defender, Bízas entendió que los de Calcedonia habían sido unos ciegos por no elegirla. Allí fundó Bizancio, que después sería Constantinopla y hoy Estambul. Por eso a Kadıköy todavía se le llama, medio en broma, el país de los ciegos.\n\n¿Y el nombre de Kadıköy? Tras la conquista otomana, el sultán Mehmed el Conquistador entregó tierras de esta zona a Hızır Bey, el primer kadı, es decir, el primer juez de Estambul. Kadıköy significa literalmente el pueblo del juez.\n\nAntes de seguir, mirad hacia el norte, a la derecha según miráis al agua. Ese edificio con aspecto de castillo es la estación de Haydarpaşa. Vamos a acercarnos un poco por el paseo para verla mejor.", "dur": 76, "file": "audio/iskele.mp3"}, {"id": "haydarpasa", "name": "Mirador de Haydarpaşa", "tr": "Haydarpaşa Garı", "walk": 5, "lat": 40.9955, "lng": 29.0205, "maps": "Haydarpaşa Garı", "icon": "station", "hue": 30, "look": ["Las dos torres en punta y la fachada de piedra", "El gran reloj sobre la entrada", "El muelle propio de la estación, donde paraba el ferry de los viajeros"], "facts": [["Inauguración", "19 de agosto de 1908"], ["Encargo", "Sultán Abdülhamid II"], ["Cimientos", "Pilotes de madera de unos 20 m"], ["Estado", "En restauración; fachadas al mar terminadas en 2026"]], "curio": "El mismo año de su inauguración sufrió un incendio, y tuvo que reabrir en 1909. Desde entonces ha sobrevivido a otro incendio, a la explosión de un petrolero y a casi un siglo de trenes.", "tip": "La mejor foto de Haydarpaşa se hace desde el agua. Si cogéis un ferry de vuelta, buscad sitio en el lado derecho.", "text": "Aquí tenéis la estación de Haydarpaşa, uno de los edificios más reconocibles de Estambul.\n\nSe empezó a construir en mil novecientos seis por orden del sultán Abdülhamid segundo y se inauguró en agosto de mil novecientos ocho. Era la cabecera del ferrocarril de Anatolia y de la famosa línea de Bagdad, un proyecto en el que participaba Alemania. Por eso la diseñaron arquitectos alemanes, y por eso tiene ese aire de castillo centroeuropeo, tan distinto de las mezquitas y los bazares que veréis al otro lado.\n\nLa idea era muy simbólica: los viajeros llegaban en barco desde la parte europea, desembarcaban en el muelle de la propia estación y subían al tren rumbo a Asia. Era literalmente la puerta de un continente.\n\nUn dato curioso: el edificio está construido sobre terreno ganado al mar y se apoya en cientos de pilotes de madera clavados en el fondo fangoso, de unos veinte metros cada uno.\n\nY ha tenido una vida movida. El mismo año de la inauguración ya sufrió un incendio. En mil novecientos setenta y nueve, un petrolero rumano explotó justo delante tras chocar con otro barco, y la onda expansiva destrozó sus vidrieras. En dos mil diez, otro incendio arrasó buena parte del tejado. Desde dos mil trece no salen de aquí trenes de largo recorrido.\n\nAhora está en plena restauración. Este verano terminaron las tres fachadas que dan al mar, justo las que estáis viendo, y el plan es convertirla en un gran centro cultural, con museos, biblioteca, salas de exposiciones y artes escénicas. Las obras siguen en marcha, así que de momento se ve solo por fuera.\n\nAhora nos metemos tierra adentro, al barrio de Yeldeğirmeni, a ver arte urbano.", "dur": 95, "file": "audio/haydarpasa.mp3"}, {"id": "yeldegirmeni", "name": "Murales de Yeldeğirmeni", "tr": "Yeldeğirmeni · Mural İstanbul", "walk": 8, "lat": 40.9952, "lng": 29.0262, "maps": "Ali İsmail Korkmaz Parkı Kadıköy", "icon": "mural", "hue": 330, "look": ["Fachadas enteras pintadas en los edificios de cinco y seis plantas", "El gran mural rojo junto al parque Ali İsmail Korkmaz", "Las calles Talimhane, Karakolhane e İskele llenas de grafitis"], "facts": [["Festival", "Mural İstanbul, desde 2012"], ["Significado", "Yeldeğirmeni = «molino de viento»"], ["Recorrido", "Unos 30–40 minutos dando vueltas"]], "curio": "Uno de los murales más famosos, del argentino Jaz, necesitó unos cien litros de pintura roja.", "tip": "Caminad mirando hacia arriba: los mejores murales ocupan las paredes laterales de los edificios.", "text": "Bienvenidos a Yeldeğirmeni, que significa molino de viento. Es uno de los barrios más antiguos de Kadıköy, de calles estrechas y edificios de viviendas de principios del siglo veinte, muchos levantados para los trabajadores del ferrocarril y del puerto.\n\nDurante años fue un barrio algo olvidado, hasta que en dos mil doce empezó aquí Mural İstanbul, el primer festival de arte urbano de Turquía, en colaboración con el ayuntamiento de Kadıköy. Cada edición invitaba a artistas turcos e internacionales a pintar las paredes ciegas de los edificios, y el resultado es un museo al aire libre.\n\nBuscad el gran mural rojo junto al parque Ali İsmail Korkmaz, en la calle İskele. Es obra del argentino Jaz, se titula Uno contra uno, y en su momento fue el trabajo más grande de su carrera. Hay también obras del italiano Pixel Pancho, del chileno Inti y de muchos artistas locales. Algunas tienen ya más de diez años y otras son más recientes, así que el paseo nunca es igual.\n\nEste barrio es también un buen ejemplo de lo que está pasando en Kadıköy: cafés de especialidad, tiendas de diseño y talleres que conviven con las tiendas de toda la vida.\n\nDad una vuelta sin prisa por estas calles. Cuando terminéis, bajad hacia el sur, cruzando la avenida Söğütlüçeşme, hacia el mercado. Allí nos esperan dos iglesias escondidas.", "dur": 78, "file": "audio/yeldegirmeni.mp3"}, {"id": "takavor", "name": "Iglesia armenia Surp Takavor", "tr": "Surp Takavor Ermeni Kilisesi", "walk": 8, "lat": 40.99, "lng": 29.0244, "maps": "Surp Takavor Ermeni Kilisesi Kadıköy", "icon": "dome", "hue": 15, "look": ["La cúpula, visible desde la calle", "La mezcla de arquitectura armenia y otomana", "Las inscripciones en alfabeto armenio"], "facts": [["Primera mención", "1722"], ["Reconstrucciones", "1814 y 1858"], ["Iglesia", "Apostólica armenia, en uso"]], "curio": "Su nombre, Surp Takavor, significa «Santo Rey».", "tip": "No siempre está abierta al público. Si la puerta está cerrada, se ve bien desde fuera.", "text": "Esta es la iglesia armenia de Surp Takavor, que significa Santo Rey. Es una iglesia apostólica armenia que sigue en uso.\n\nSu origen es antiguo, probablemente del siglo diecisiete: la primera mención escrita es de mil setecientos veintidós. Un rico armenio, Harutyun Amira Nordukyan, pagó su reconstrucción, y reabrió en mil ochocientos catorce. Un terremoto la dañó años después, y volvió a reconstruirse en mil ochocientos cincuenta y ocho. El edificio que veis mezcla elementos de la arquitectura armenia con el estilo otomano de la época.\n\nEsta iglesia nos recuerda que Kadıköy fue durante siglos un barrio mezclado. Aquí convivían turcos, griegos, armenios, judíos y familias europeas. Muchas de esas comunidades se redujeron mucho a lo largo del siglo veinte, pero sus iglesias, colegios y casas siguen formando parte del paisaje del barrio.\n\nSi está abierta, podéis asomaros con respeto. Y si no, seguid unos pasos: muy cerca, escondida entre los puestos del mercado, está la iglesia griega de Santa Eufemia.", "dur": 59, "file": "audio/takavor.mp3"}, {"id": "efimia", "name": "Iglesia de Santa Eufemia", "tr": "Aya Efimia Rum Ortodoks Kilisesi", "walk": 3, "lat": 40.9894, "lng": 29.0247, "maps": "Aya Efimia Kilisesi Kadıköy", "icon": "church", "hue": 210, "look": ["La puerta discreta entre los puestos del mercado", "El patio interior y los iconos ortodoxos", "Las velas finas que encienden los fieles al entrar"], "facts": [["Dedicada a", "Santa Eufemia, mártir de Calcedonia"], ["Concilio de Calcedonia", "Año 451"], ["Iglesia", "Ortodoxa griega, en uso"]], "curio": "El Concilio de Calcedonia se reunió en la gran basílica de Santa Eufemia, que estaba aquí. Hoy no queda nada de ella.", "tip": "Entrad en silencio, sin gorra y con los hombros cubiertos. Las fotos, sin flash.", "text": "Escondida entre los puestos del mercado está esta pequeña iglesia ortodoxa griega, dedicada a Santa Eufemia, una joven cristiana de Calcedonia que murió mártir a comienzos del siglo cuarto por negarse a adorar a los dioses paganos.\n\nSu nombre tiene mucho peso en la historia. En el año cuatrocientos cincuenta y uno se celebró aquí, en Calcedonia, uno de los concilios más importantes del cristianismo. Se reunió precisamente en la gran basílica dedicada a Santa Eufemia, y en él participaron cientos de obispos. Ese concilio fijó la idea de que Cristo tiene dos naturalezas, divina y humana, en una sola persona. Varias iglesias de Oriente, como la copta, la etíope o la armenia, no aceptaron aquella decisión, y todavía hoy siguen caminos separados. Es decir, lo que se decidió aquí hace mil quinientos años aún divide a millones de cristianos.\n\nLa basílica original desapareció hace siglos. Esta iglesia es mucho más modesta, pero mantiene vivo el nombre de la santa y la presencia de la comunidad griega en el barrio.\n\nSi está abierta, entrad un momento: los iconos dorados, el olor a cera y la tranquilidad contrastan muchísimo con el bullicio del mercado de fuera. Y precisamente al mercado vamos ahora.", "dur": 69, "file": "audio/efimia.mp3"}, {"id": "carsi", "name": "Mercado de Kadıköy", "tr": "Kadıköy Çarşısı · Güneşlibahçe Sokak", "walk": 2, "lat": 40.9902, "lng": 29.0258, "maps": "Güneşlibahçe Sokak Kadıköy", "icon": "fish", "hue": 190, "look": ["Los puestos de pescado con las agallas rojas a la vista", "Las tiendas de encurtidos, con tarros de colores", "Quesos, aceitunas, especias, miel y frutos secos al peso"], "facts": [["Calle principal", "Güneşlibahçe Sokak"], ["Temporada", "Bonito y hamsi en otoño"], ["Comer aquí", "Çiya Sofrası"]], "curio": "Los pescaderos dejan las agallas del pescado abiertas y bien rojas: es la forma de demostrar que está fresco.", "tip": "Para comer sentados: Çiya Sofrası, en esta misma calle. Pedid varios platos para compartir y dejad sitio para el postre.", "text": "Esto es el mercado de Kadıköy, y la calle principal es Güneşlibahçe. Aquí compran los vecinos de verdad: no es un mercado para turistas, y eso es lo mejor que tiene.\n\nFijaos en el pescado. Los puestos dejan las agallas abiertas y bien rojas para demostrar que es fresco. En otoño es temporada de bonito y de hamsi, la anchoa del mar Negro, que los turcos fríen rebozada en harina de maíz. Veréis también bocadillos de pescado a la plancha por toda la zona.\n\nLas tiendas con tarros de colores son de turşu, encurtidos: pepino, col, zanahoria, remolacha, guindilla. Muchas venden también el caldo del encurtido para beber en vaso. Es fuerte, ácido y salado; probadlo al menos una vez.\n\nMás cosas para picar por el camino: midye dolma, mejillones rellenos de arroz con especias que se comen con un chorro de limón; kokoreç, un bocadillo de tripas de cordero a la plancha muy picadito; y börek, hojaldre relleno de queso, carne o espinacas. En las tiendas de delicatessen tenéis quesos, aceitunas, embutido curado llamado pastırma, miel y lokum.\n\nSi queréis comer sentados, en esta calle está Çiya Sofrası, un restaurante muy conocido del cocinero Musa Dağdeviren, que se dedica a recuperar recetas de toda Anatolia: guisos, kebabs, verduras rellenas y postres que no veréis en otros sitios. Es buena idea pedir varios platos al centro y probar un poco de todo.\n\nCuando terminéis, seguid hacia el interior del barrio. La siguiente parada es una galería de libros y discos.", "dur": 86, "file": "audio/carsi.mp3"}, {"id": "akmar", "name": "Pasaje Akmar", "tr": "Akmar Pasajı", "walk": 4, "lat": 40.9907, "lng": 29.028, "maps": "Akmar Pasajı Kadıköy", "icon": "vinyl", "hue": 270, "look": ["Librerías de segunda mano con libros hasta el techo", "Vinilos de rock turco de los sesenta y setenta", "Cómics, fanzines y carteles antiguos"], "facts": [["Qué es", "Galería de libros, discos y cómics"], ["Para buscar", "Rock anatolio en vinilo"]], "curio": "Kadıköy es el barrio con más librerías y salas de conciertos de la parte asiática de la ciudad.", "tip": "Un vinilo de rock anatolio es un buen recuerdo y ocupa poco en la maleta.", "text": "El pasaje Akmar es una galería estrecha llena de librerías de segunda mano, tiendas de discos, cómics y revistas antiguas.\n\nEs un buen resumen del carácter de Kadıköy. Este lado de la ciudad tiene fama de ser el más universitario, cultural y alternativo de Estambul. Aquí hay salas de conciertos, teatros pequeños, cines de autor, editoriales y mucha escena musical, desde rock y metal hasta electrónica.\n\nSi os gusta la música, buscad vinilos de rock anatolio de los años sesenta y setenta. Es una mezcla muy especial de rock psicodélico con instrumentos y melodías tradicionales turcas, y tuvo figuras enormes como Cem Karaca, Erkin Koray o Barış Manço. A Barış Manço lo vamos a encontrar más adelante, porque vivió en Moda y su casa es hoy un museo.\n\nNo hace falta comprar nada: dad una vuelta, curiosead y salid por el otro extremo. La siguiente parada es el símbolo del barrio: un toro.", "dur": 53, "file": "audio/akmar.mp3"}, {"id": "boga", "name": "El Toro de Kadıköy", "tr": "Boğa Heykeli · Altıyol", "walk": 2, "lat": 40.9906, "lng": 29.0294, "maps": "Kadıköy Boğa Heykeli Altıyol", "icon": "bull", "hue": 40, "look": ["La firma del escultor y la fecha 1864 en el bronce", "La plaza de seis calles que le da nombre", "La gente que queda aquí para verse"], "facts": [["Escultor", "Isidore Bonheur, 1864"], ["En Altıyol desde", "1987"], ["Sitio definitivo", "Confirmado en 2018"]], "curio": "Antes de llegar aquí estuvo en palacios, en una granja en los bosques de Belgrado, en el patio de un instituto y en la entrada del hotel Hilton.", "tip": "Es el sitio perfecto para la foto de grupo. Y si alguien se pierde, el punto de encuentro es el toro.", "text": "Este es el toro de Kadıköy, en la plaza de Altıyol, que significa seis caminos. Para los vecinos es el punto de encuentro por excelencia: quedar en el toro es como quedar en el oso y el madroño en Madrid.\n\nEl toro tiene más viajes que nosotros. Es una escultura de bronce francesa, firmada por el escultor Isidore Bonheur en mil ochocientos sesenta y cuatro. Hay dos versiones sobre cómo llegó a Estambul. Una dice que la encargó el sultán Abdülaziz. La otra, que fue un regalo de Alemania al militar otomano Enver Paşa en mil novecientos diecisiete.\n\nLo que sí se sabe es que estuvo primero en los jardines de palacios otomanos, después en una granja privada de Enver Paşa en los bosques de Belgrado, luego en el patio de un instituto, más tarde delante de un palacio de congresos en la parte europea, e incluso un tiempo en la entrada del hotel Hilton. En mil novecientos setenta y uno llegó a Kadıköy, delante del antiguo ayuntamiento, y en mil novecientos ochenta y siete a esta plaza.\n\nEn dos mil trece, la administración de los palacios nacionales pidió que volviera a un palacio. El ayuntamiento de Kadıköy se negó, los vecinos también, y en dos mil dieciocho se decidió oficialmente que este sería su sitio para siempre.\n\nHaceos la foto de grupo aquí. Si sois futboleros, desde este punto el estadio del Fenerbahçe está a unos diez minutos hacia el este: tenéis la parada extra al final. Para seguir la ruta, tomad la calle peatonal Bahariye, hacia el sur.", "dur": 84, "file": "audio/boga.mp3"}, {"id": "opera", "name": "Ópera Süreyya", "tr": "Bahariye Caddesi · Süreyya Operası", "walk": 3, "lat": 40.9887, "lng": 29.0297, "maps": "Süreyya Operası Kadıköy", "icon": "opera", "hue": 350, "look": ["La fachada inspirada en el Teatro de los Campos Elíseos de París", "Las tiendas, cafés y librerías de Bahariye", "Los músicos callejeros, sobre todo el fin de semana"], "facts": [["Inauguración", "6 de marzo de 1927"], ["Promotor", "Süreyya Paşa"], ["Reapertura como ópera", "27 de octubre de 2007"]], "curio": "Durante décadas fue cine, porque el escenario nunca se terminó del todo.", "tip": "Mirad la cartelera: si hay función alguna noche de vuestro viaje, las entradas suelen ser asequibles.", "text": "Estamos en la calle Bahariye, una de las más animadas del barrio, y delante tenéis la Ópera Süreyya.\n\nLa mandó construir Süreyya İlmen, conocido como Süreyya Paşa, un diputado de Estambul que viajaba mucho por Europa y quería traer a este lado de la ciudad un teatro como los que veía fuera. Las obras empezaron en mil novecientos veinticuatro, y se inauguró el seis de marzo de mil novecientos veintisiete con una gran gala. Dicen que la entrada y el vestíbulo se inspiraron en el Teatro de los Campos Elíseos de París, y que el interior siguió el modelo de los teatros clásicos alemanes.\n\nPero hubo un problema: el escenario nunca se terminó del todo y no servía para grandes funciones. Así que durante décadas el edificio funcionó como cine; en mil novecientos treinta ya tenía cine sonoro. Cuando murió Süreyya Paşa, en mil novecientos cincuenta, pasó a una fundación, y con los años se alquiló a comercios. Llegó a tener dentro hasta un taller de sastrería, que dañó los frescos originales.\n\nEn dos mil cinco el ayuntamiento de Kadıköy lo alquiló y lo restauró a fondo. El veintisiete de octubre de dos mil siete reabrió por fin como lo que siempre quiso ser: un teatro de ópera. Ochenta años de espera para su primera temporada.\n\nSeguid un poco más por Bahariye y girad hacia la calle Kadife, la calle de los bares.", "dur": 75, "file": "audio/opera.mp3"}, {"id": "kadife", "name": "Calle Kadife", "tr": "Kadife Sokak · Barlar Sokağı", "walk": 4, "lat": 40.987, "lng": 29.0278, "maps": "Kadife Sokak Kadıköy", "icon": "glass", "hue": 290, "look": ["Casas antiguas de madera y piedra convertidas en bares", "Murales y grafitis en las fachadas", "De noche: música en directo y terrazas llenas"], "facts": [["Apodo", "Barlar Sokağı, la calle de los bares"], ["Mejor momento", "A partir de las 21:00"]], "curio": "Kadife significa terciopelo.", "tip": "De día está tranquila. Apuntadla para volver por la noche a tomar algo.", "text": "Esta es la calle Kadife, que significa terciopelo, aunque todo el mundo la llama Barlar Sokağı, la calle de los bares.\n\nDe día parece una calle residencial normal, con casas antiguas de dos o tres plantas, algunas de madera. De noche cambia por completo: casi cada portal es un bar, con rock, electrónica o música en directo, cerveza artesana y mucha gente joven en la calle.\n\nEs un buen sitio para entender una cosa de Kadıköy: para muchos turcos, este barrio es sinónimo de libertad y de ambiente desenfadado. Aquí vienen estudiantes, músicos y artistas de toda la ciudad, y los precios suelen ser más razonables que en las zonas de copas de la parte europea.\n\nSi os apetece una noche de bares tranquila y local, este es vuestro sitio. Volved más tarde. Ahora vamos a por algo dulce antes de entrar en Moda.", "dur": 47, "file": "audio/kadife.mp3"}, {"id": "baylan", "name": "Pastelería Baylan", "tr": "Baylan Pastanesi · Muvakkithane Caddesi", "walk": 4, "lat": 40.9879, "lng": 29.0261, "maps": "Baylan Pastanesi Kadıköy", "icon": "cake", "hue": 25, "look": ["El letrero y el mostrador de estilo antiguo", "El jardín interior", "El Kup Griye en la carta"], "facts": [["En Kadıköy desde", "1961"], ["Especialidad", "Kup Griye"]], "curio": "El café turco se sirve sin filtrar: el poso se queda en el fondo, así que no os lo bebáis hasta el final.", "tip": "Pedid un Kup Griye para compartir y un café turco o un çay.", "text": "Esta es la pastelería Baylan, una institución en Kadıköy. Abrió aquí en mil novecientos sesenta y uno, y mantiene ese ambiente de pastelería clásica que ya cuesta encontrar.\n\nSu postre más famoso es el Kup Griye: una copa de helado con crema de caramelo, almendras y nata. Los mayores del barrio lo recuerdan de su infancia, y por eso tiene algo de nostálgico. Pedid uno para compartir.\n\nSi preferís algo más turco, probad un café turco. Se hace en un cazo pequeño, sin filtrar, y el poso se queda en el fondo de la taza, así que no os lo bebáis hasta el final. Se suele servir con un vasito de agua y un trozo de lokum, la delicia turca. Y hay una tradición curiosa: dar la vuelta a la taza sobre el plato cuando se termina para leer el futuro en el poso.\n\nA partir de aquí empieza Moda. Fijaos en cómo cambian las calles: más tranquilas, con más árboles y con casas más señoriales.", "dur": 52, "file": "audio/baylan.mp3"}, {"id": "moda", "name": "Calle Moda", "tr": "Moda Caddesi", "walk": 6, "lat": 40.984, "lng": 29.0262, "maps": "Dondurmacı Ali Usta Moda", "icon": "icecream", "hue": 160, "look": ["Las casas levantinas con miradores y jardines", "La heladería Ali Usta, con cola a cualquier hora", "Los cafés de barrio con mesas en la acera"], "facts": [["Siglo XIX", "Zona de familias levantinas, griegas y armenias"], ["Helado", "Estilo Maraş, elástico y denso"]], "curio": "La mansión Arif Sarıca, en esta calle, es de 1903 y sigue en manos de la misma familia.", "tip": "En Ali Usta, pedid probar antes de elegir. Hay más de cincuenta sabores.", "text": "Bienvenidos a Moda. En el siglo diecinueve esta pequeña península era una zona de casas elegantes junto al mar, donde vivían muchas familias levantinas, es decir, comerciantes europeos asentados en el Imperio otomano desde hacía generaciones. Entre ellas, la familia inglesa Whittall, una de las más conocidas. También había muchas familias griegas y armenias.\n\nEsa mezcla se nota todavía en las casas, con miradores, jardines y fachadas que recuerdan más a una ciudad europea que a la Estambul de las postales. Fijaos, por ejemplo, en las mansiones antiguas que quedan entre los edificios modernos; algunas tienen más de cien años y siguen en manos de la misma familia.\n\nHoy Moda es un barrio tranquilo y con mucho encanto, de cafés pequeños, librerías, panaderías de masa madre y tiendas de vinos. Es de los sitios favoritos de los estambulíes para pasear el fin de semana.\n\nY una parada obligada de la calle: Ali Usta, una heladería muy popular con helado al estilo de Maraş, más elástico y denso que el italiano. Siempre hay cola, pero va rápido, y tienen más de cincuenta sabores.\n\nMuy cerca de aquí está la casa de Barış Manço, uno de los músicos más queridos de Turquía. Vamos a verla.", "dur": 71, "file": "audio/moda.mp3"}, {"id": "manco", "name": "Casa-museo de Barış Manço", "tr": "Barış Manço Evi Müzesi", "walk": 3, "lat": 40.9831, "lng": 29.028, "maps": "Barış Manço Evi Müzesi Kadıköy", "icon": "guitar", "hue": 120, "look": ["La casa de madera y su jardín", "Discos de oro, instrumentos y trajes de escena", "Los anillos enormes que llevaba en los conciertos"], "facts": [["Horario", "9:00–16:00, cerrado los lunes"], ["Dirección", "Yusuf Kamil Paşa Sk. 5"], ["Barış Manço", "1943–1999"]], "curio": "Barış significa «paz». Se dice que fue de los primeros turcos en llevar ese nombre.", "tip": "Cierra a las 16:00 y no abre los lunes. Si vais justos de tiempo, vedla por fuera.", "text": "Esta es la casa donde vivió Barış Manço, hoy convertida en museo.\n\nBarış Manço nació en mil novecientos cuarenta y tres y murió de un infarto en mil novecientos noventa y nueve, con solo cincuenta y seis años. Fue uno de los grandes del rock anatolio: mezclaba rock con música tradicional turca, con letras llenas de historias y humor. Llevaba el pelo largo, bigote y unos anillos enormes en los dedos, y era una figura muy reconocible.\n\nPero en Turquía se le recuerda sobre todo por algo más: durante años presentó un programa de televisión para toda la familia, viajando por todo el mundo y enseñando otras culturas. Generaciones enteras de turcos crecieron viéndolo, y por eso es una figura muy querida, casi familiar. Su funeral fue multitudinario.\n\nSu nombre, Barış, significa paz. Se dice que fue de los primeros turcos en llevar ese nombre, que sus padres le pusieron en plena Segunda Guerra Mundial como deseo de paz.\n\nDentro de la casa veréis sus discos de oro, sus instrumentos, sus trajes de escena y muchos objetos personales, tal como los dejó. El museo abre de nueve a cuatro y cierra los lunes, así que si no llegáis a tiempo, al menos asomaos al jardín.\n\nAhora bajamos hacia el mar, al muelle de Moda.", "dur": 70, "file": "audio/manco.mp3"}, {"id": "modaiskele", "name": "Muelle de Moda", "tr": "Moda İskelesi", "walk": 6, "lat": 40.9813, "lng": 29.0238, "maps": "Moda İskelesi", "icon": "pier", "hue": 195, "look": ["El edificio blanco del muelle, de 1917", "Al otro lado del agua: el perfil de la península histórica", "Los pescadores con caña en el paseo"], "facts": [["Construido", "1917"], ["Hoy", "Café y pequeña biblioteca"], ["Vistas", "Península histórica e Islas de los Príncipes"]], "curio": "Con buena visibilidad, desde aquí se distinguen los minaretes de Santa Sofía y de la Mezquita Azul.", "tip": "Buen sitio para descansar las piernas con un çay frente al mar.", "text": "Este es el muelle de Moda, construido en mil novecientos diecisiete y restaurado hace pocos años. Durante décadas fue la parada de los barcos que traían a los vecinos de Moda desde la parte europea. Hoy funciona como café, con una pequeña biblioteca y vistas al agua.\n\nMirad al frente, al otro lado del mar. Lo que se ve en el horizonte es la península histórica de Estambul, la ciudad vieja. Con buena visibilidad se distinguen las cúpulas y minaretes de Santa Sofía y de la Mezquita Azul, y el palacio de Topkapı en la punta. Para los que vivían aquí, esa era la vista diaria: la capital del imperio al otro lado del agua.\n\nHacia la izquierda, en los días claros, se ven las Islas de los Príncipes, un archipiélago de nueve islas donde no circulan coches particulares. Se llega en ferry en menos de una hora, y es una buena excursión si os sobra un día.\n\nCaminad por el paseo marítimo hacia la punta de Moda. Es la última parada de la ruta, y el mejor sitio para ver el atardecer.", "dur": 57, "file": "audio/modaiskele.mp3"}, {"id": "burnu", "name": "Punta de Moda", "tr": "Moda Burnu · Moda Sahili", "walk": 5, "lat": 40.9775, "lng": 29.0262, "maps": "Moda Burnu Kadıköy", "icon": "sunset", "hue": 15, "look": ["El atardecer detrás de la península histórica", "Los jardines de té con vistas al mar", "La gente sentada en las rocas con çay y pipas"], "facts": [["Atardecer", "Hacia las 17:05 a principios de noviembre"], ["Para pedir", "Bir çay, lütfen"]], "curio": "El vaso de çay tiene forma de tulipán, que es también un símbolo otomano.", "tip": "Llegad sobre las 16:30 para coger sitio en primera fila.", "text": "Hemos llegado a la punta de Moda, y no hay mejor final para la ruta. Aquí los vecinos vienen a sentarse en las rocas, en el césped o en los jardines de té para ver cómo el sol se pone detrás de la península histórica, con las siluetas de las mezquitas recortadas contra el cielo.\n\nEs el momento perfecto para un çay. El té turco se toma en vasos pequeños con forma de tulipán, sin leche y con terrones de azúcar al gusto. Se prepara en una tetera doble: abajo el agua, arriba el té muy concentrado, y se mezcla al servir; por eso podéis pedirlo más fuerte o más suave. Se sirve muy caliente, así que agarrad el vaso por el borde de arriba. Lo normal es tomar uno detrás de otro sin prisa. Para acompañar, un simit, el pan con sésamo que habréis visto por todas partes.\n\nUn par de palabras útiles: bir çay, lütfen, un té por favor. Y teşekkürler, gracias.\n\nPara volver, podéis deshacer el camino a pie hasta el muelle de Kadıköy, unos veinte minutos, o coger uno de los minibuses eléctricos que conectan Moda con el centro mientras el tranvía está en obras. Y si os quedan fuerzas, por la noche, la calle Kadife os espera.\n\nGracias por hacer esta ruta. Disfrutad de Estambul.", "dur": 68, "file": "audio/burnu.mp3"}, {"id": "fener", "name": "Estadio del Fenerbahçe", "tr": "Chobani Stadyumu · Şükrü Saracoğlu", "walk": 10, "extra": true, "lat": 40.9876, "lng": 29.0369, "maps": "Şükrü Saracoğlu Stadyumu", "icon": "ball", "hue": 50, "look": ["La tienda oficial del club", "La fachada amarilla y azul marino", "El ambiente de los alrededores en día de partido"], "facts": [["Club fundado", "1907, en Kadıköy"], ["Museo", "Bajo la tribuna Maraton, desde 2005"], ["Hoy", "Fenerbahçe – Liverpool, 20:45"]], "curio": "Fener significa faro: el club toma el nombre de la punta de Fenerbahçe, un cabo cercano con un faro.", "tip": "El museo se visita en días concretos o dentro del tour del estadio. En día de partido, olvidaos.", "text": "Esta es la parada extra para los futboleros. A unos diez minutos del toro está el estadio del Fenerbahçe, hoy llamado Chobani Stadyumu Şükrü Saracoğlu.\n\nEl Fenerbahçe se fundó en mil novecientos siete aquí, en Kadıköy, y es uno de los tres grandes del fútbol turco junto al Galatasaray y el Beşiktaş. Su nombre viene de la punta de Fenerbahçe, un cabo cercano con un faro: fener significa faro y bahçe, jardín. Sus colores son el amarillo y el azul marino.\n\nEl estadio está en el lugar del antiguo Papazın Çayırı, el prado del cura, uno de los primeros campos donde se jugó al fútbol en la ciudad. El nombre de Şükrü Saracoğlu recuerda a un antiguo presidente del club que también fue primer ministro de Turquía.\n\nBajo la tribuna Maraton está el museo del club, abierto en dos mil cinco. Tiene trofeos, camisetas antiguas, figuras de cera que recrean la fundación del club y una sala de cine con partidos históricos. Se visita en días concretos o dentro del tour del estadio, con carteles en turco y en inglés.\n\nSi os coincide un partido, el ambiente es espectacular: es uno de los estadios más ruidosos de Europa. Y un consejo: los colores importan mucho aquí. Si cruzáis luego a barrios de otros equipos, mejor no ir con la bufanda.", "dur": 72, "file": "audio/fener.mp3"}]};
+const INTRO=DATA.intro, STOPS=DATA.stops;
+const ALL=[INTRO,...STOPS];
+const MAIN=STOPS.filter(s=>!s.extra);
+const byId=Object.fromEntries(ALL.map(s=>[s.id,s]));
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const esc=t=>String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+const ico=(n,c='')=>`<svg class="ico ${c}"><use href="#i-${n}"/></svg>`;
+const fmt=s=>{s=Math.max(0,Math.floor(s||0));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
+const num=s=>s.extra?'+':String(MAIN.indexOf(s)+1);
+const grad=h=>`linear-gradient(145deg,hsl(${h} 52% 42%) 0%,hsl(${(h+28)%360} 58% 26%) 100%)`;
+const coverBg=(s)=>`<div class="cover-bg" style="background:${grad(s.hue)}"></div><svg class="cover-bg" viewBox="0 0 200 120" preserveAspectRatio="none" aria-hidden="true"><path d="M0 92 Q25 84 50 92 T100 92 T150 92 T200 92 V120 H0Z" fill="rgba(255,255,255,.10)"/><path d="M0 104 Q25 96 50 104 T100 104 T150 104 T200 104 V120 H0Z" fill="rgba(255,255,255,.08)"/></svg>`;
+document.getElementById('totAudio').textContent=Math.round(ALL.reduce((a,s)=>a+s.dur,0)/60)+' min';
+document.getElementById('introDur').textContent=fmt(INTRO.dur)+' · escuchadlo en el ferry';
+
+/* done state */
+const KEY='kdk-moda-v2';let done=new Set();
 try{done=new Set(JSON.parse(localStorage.getItem(KEY)||'[]'))}catch(e){}
-const saveDone=()=>{try{localStorage.setItem(KEY,JSON.stringify([...done]))}catch(e){}};
-const fmt=s=>{s=Math.max(0,Math.round(s||0));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
-const mainCount=STOPS.filter(s=>!s.extra).length;
-const label=(s,i)=>s.extra?'Extra':String(i+1);
-const esc=t=>t.replace(/&/g,'&amp;').replace(/</g,'&lt;');
-document.getElementById('totalAudio').textContent=Math.round(STOPS.reduce((a,s)=>a+s.dur,0)/60)+' min';
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify([...done]))}catch(e){}};
 
-// Stops
-const ol=document.getElementById('stops');
-STOPS.forEach((s,i)=>{
-  const li=document.createElement('li');
-  li.className='stop'+(s.extra?' extra':'');li.id='p-'+s.id;
+/* plan */
+const PLAN=[["10:30","Ferry a Kadıköy","Escuchad la introducción en cubierta"],["10:50","Haydarpaşa y murales","Paradas 1–3"],["11:50","Iglesias y mercado","Paradas 4–6, picoteo"],["13:15","Comida","Çiya Sofrası u otro del mercado"],["14:30","Toro y ópera","Paradas 7–10"],["15:15","Café y Moda","Baylan, Ali Usta"],["15:40","Casa de Barış Manço","Cierra a las 16:00"],["16:30","Muelle y punta de Moda","Atardecer ≈ 17:05"],["21:00","Noche","Calle Kadife"]];
+$('#plan').innerHTML=PLAN.map(p=>`<div class="card slot"><span class="t">${p[0]}</span><b>${esc(p[1])}</b><span>${esc(p[2])}</span></div>`).join('');
+
+/* list */
+function renderList(){
+  $('#list').innerHTML=STOPS.map((s,i)=>{
+    const wl=s.walk&&!s.extra?`<li class="walkline" aria-hidden="true">${s.walk} min a pie</li>`:(s.extra?`<li class="walkline" aria-hidden="true">Extra · ${s.walk} min desde el Toro</li>`:'');
+    return wl+`<li><button class="srow${done.has(s.id)?' is-done':''}" data-open="${s.id}">
+      <div class="thumb">${coverBg(s)}<span class="n">${s.extra?'EXTRA':num(s)}</span>${ico(s.icon)}<span class="done">${ico('check')}</span></div>
+      <div class="body"><b>${esc(s.name)}</b><span class="tr">${esc(s.tr)}</span>
+      <div class="meta"><span>${ico('headphones')}${fmt(s.dur)}</span>${s.facts&&s.id==='manco'?`<span>${ico('clock')}Cierra 16:00 · lunes cerrado</span>`:''}${s.id==='fener'?`<span>${ico('clock')}Partido hoy 20:45</span>`:''}</div></div>
+    </button></li>`}).join('');
+  $$('[data-open]').forEach(b=>b.onclick=()=>{location.hash='p-'+b.dataset.open});
+  const n=MAIN.filter(s=>done.has(s.id)).length;
+  $('#ringTxt').textContent=n+'/'+MAIN.length;
+  $('#ringFg').style.strokeDashoffset=94.25*(1-n/MAIN.length);
+  markers&&Object.entries(markers).forEach(([id,m])=>updPin(id));
+}
+
+/* sheet */
+let sheetId=null;
+function openSheet(id){
+  const s=byId[id];if(!s||s.id==='intro')return;sheetId=id;
+  const i=STOPS.indexOf(s), prev=STOPS[i-1], next=STOPS[i+1];
   const maps='https://www.google.com/maps/dir/?api=1&travelmode=walking&destination='+encodeURIComponent(s.maps);
-  li.innerHTML=`<div class="num" aria-hidden="true">${label(s,i)}</div>
-  <article class="card">
-    <div><div class="walk">${s.walk==='Inicio'?'PUNTO DE SALIDA':(s.extra?s.walk.toUpperCase():'↓ '+s.walk+' A PIE DESDE LA ANTERIOR')}</div>
-    <h3>${esc(s.name)}</h3><div class="tr mono">${esc(s.tr)}</div></div>
-    <div class="player">
-      <button class="play" data-i="${i}" aria-label="Escuchar ${esc(s.name)}"><svg viewBox="0 0 24 24">${PLAY}</svg></button>
-      <div class="track" data-i="${i}" role="slider" aria-label="Posición del audio" tabindex="0"><i></i></div>
-      <span class="time">${fmt(s.dur)}</span>
+  $('#sheet').innerHTML=`
+  <div class="cover">${coverBg(s)}<svg class="ico big"><use href="#i-${s.icon}"/></svg>
+    <button class="back" id="sBack" aria-label="Volver">${ico('back')}</button>
+    <div class="content pad"><div class="inner"><span class="num">${s.extra?'PARADA EXTRA':'PARADA '+num(s)+' DE '+MAIN.length}</span><h2 id="sTitle">${esc(s.name)}</h2><div class="tr">${esc(s.tr)}</div></div></div>
+  </div>
+  <div class="pad"><div class="inner body">
+    <div class="card bigplayer">
+      <div class="bp-row">
+        <button class="pbtn" data-play="${s.id}" aria-label="Escuchar">${ico('play')}</button>
+        <div class="bp-info"><b>Audioguía</b><span class="bp-time">0:00 / ${fmt(s.dur)}</span></div>
+        <button class="skip" data-skip="-15" aria-label="Retroceder 15 segundos">−15</button>
+        <button class="skip" data-skip="15" aria-label="Avanzar 15 segundos">+15</button>
+      </div>
+      <input type="range" class="scrub" id="scrub-${s.id}" min="0" max="1000" value="0" aria-label="Posición del audio">
     </div>
-    <div class="look"><h4>Qué mirar</h4><ul>${s.look.map(l=>'<li>'+esc(l)+'</li>').join('')}</ul></div>
-    <div class="tip"><b>Consejo · </b>${esc(s.tip)}</div>
-    <div class="actions">
-      <a class="btn" href="${maps}" target="_blank" rel="noopener">Cómo llegar ↗</a>
-      <button class="btn check" data-i="${i}" aria-pressed="false">✓ Hecho</button>
+    <div class="chips">
+      <a class="chip primary" href="${maps}" target="_blank" rel="noopener">${ico('pin')}Cómo llegar</a>
+      ${s.walk?`<span class="chip">${ico('walk')}${s.extra?s.walk+' min desde el Toro':s.walk+' min desde la anterior'}</span>`:`<span class="chip">${ico('walk')}Punto de salida</span>`}
+      <button class="chip done" id="doneBtn" aria-pressed="${done.has(s.id)}">${ico('check')}<span>${done.has(s.id)?'Hecha':'Marcar como hecha'}</span></button>
     </div>
-    <details class="script"><summary>Leer el texto del audio</summary>${s.text.split('\n\n').map(p=>'<p>'+esc(p)+'</p>').join('')}</details>
-  </article>`;
-  ol.appendChild(li);
-});
-
-// Map
-const svg=document.getElementById('map');const W=340,H=400,P=26;
-const X=x=>P+x*(W-2*P), Y=y=>P+y*(H-2*P);
-const water=`M0 0 H${X(.58)} C${X(.52)} ${Y(.02)} ${X(.40)} ${Y(.05)} ${X(.30)} ${Y(.07)} C${X(.20)} ${Y(.12)} ${X(.20)} ${Y(.24)} ${X(.19)} ${Y(.34)} C${X(.16)} ${Y(.52)} ${X(.13)} ${Y(.70)} ${X(.17)} ${Y(.84)} C${X(.22)} ${Y(.96)} ${X(.34)} ${Y(1.0)} ${X(.46)} ${Y(.98)} C${X(.60)} ${Y(.96)} ${X(.75)} ${Y(1.02)} ${W} ${Y(1.03)} V${H} H0 Z`;
-let html=`<path d="${water}" fill="var(--water)"/>
-<text x="${X(.0)}" y="${Y(.55)}" font-family="var(--f-mono)" font-size="9" letter-spacing="2" fill="var(--muted)" transform="rotate(-90 ${X(.0)} ${Y(.55)})" text-anchor="middle">MAR DE MÁRMARA</text>
-<text x="${X(.62)}" y="${Y(.035)}" font-family="var(--f-mono)" font-size="8.5" fill="var(--muted)">↑ HAYDARPAŞA</text>`;
-const main=STOPS.map((s,i)=>[s,i]).filter(([s])=>!s.extra);
-html+=`<polyline points="${main.map(([s])=>X(s.x)+','+Y(s.y)).join(' ')}" fill="none" stroke="var(--sea)" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" opacity=".8"/>`;
-const boga=STOPS.find(s=>s.id==='boga'), fen=STOPS.find(s=>s.extra);
-html+=`<line x1="${X(boga.x)}" y1="${Y(boga.y)}" x2="${X(fen.x)}" y2="${Y(fen.y)}" stroke="var(--cay)" stroke-width="1.8" stroke-dasharray="4 4"/>`;
-const side={iskele:'r',efimia:'l',carsi:'b',akmar:'t',boga:'r',opera:'r',kadife:'b',baylan:'l',moda:'r',modaiskele:'l',burnu:'r',fener:'b'};
-STOPS.forEach((s,i)=>{
-  const x=X(s.x),y=Y(s.y),sd=side[s.id]||'r';
-  const short=s.name.replace('Iglesia de ','').replace('Calle Bahariye y ','').replace('Pastelería ','').replace('Estadio del ','');
-  let tx=x+14,ty=y+4,an='start';
-  if(sd==='l'){tx=x-14;an='end'} if(sd==='b'){tx=x;ty=y+24;an='middle'} if(sd==='t'){tx=x;ty=y-16;an='middle'}
-  html+=`<g class="node${s.extra?' extra':''}" data-i="${i}" tabindex="0" role="button" aria-label="${esc(s.name)}"><circle class="dot" cx="${x}" cy="${y}" r="10"/><text class="n" x="${x}" y="${y}">${s.extra?'+':i+1}</text><text class="lbl" x="${tx}" y="${ty}" text-anchor="${an}">${esc(short)}</text></g>`;
-});
-svg.innerHTML=html;
-svg.querySelectorAll('.node').forEach(n=>{const go=()=>document.getElementById('p-'+STOPS[+n.dataset.i].id).scrollIntoView({block:'start'});n.addEventListener('click',go);n.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}})});
-
-// Done state
-function renderDone(){
-  STOPS.forEach((s,i)=>{const d=done.has(s.id);
-    document.getElementById('p-'+s.id).classList.toggle('done',d);
-    const b=document.querySelector(`.check[data-i="${i}"]`);b.setAttribute('aria-pressed',d);b.textContent=d?'✓ Hecho':'Marcar como hecha';
-    svg.querySelector(`.node[data-i="${i}"]`).classList.toggle('done',d);
-  });
-  const n=STOPS.filter(s=>!s.extra&&done.has(s.id)).length;
-  document.getElementById('doneTxt').textContent=n+' de '+mainCount;
-  document.getElementById('doneBar').style.width=(n/mainCount*100)+'%';
+    <div class="card block"><h3>Qué mirar</h3><ul class="look">${s.look.map((l,k)=>`<li><i>${k+1}</i><span>${esc(l)}</span></li>`).join('')}</ul></div>
+    <div class="card block"><h3>Datos rápidos</h3><div class="facts">${s.facts.map(f=>`<div class="fact"><span>${esc(f[0])}</span><b>${esc(f[1])}</b></div>`).join('')}</div></div>
+    <div class="duo">
+      <div class="card block curio"><h3>Curiosidad</h3><p>${esc(s.curio)}</p></div>
+      <div class="card block tipbox"><h3>Consejo</h3><p>${esc(s.tip)}</p></div>
+    </div>
+    <details class="card script"><summary>Leer el texto del audio ${ico('chev')}</summary>${s.text.split('\n\n').map(p=>'<p>'+esc(p)+'</p>').join('')}</details>
+    <div class="pager">
+      <button ${prev?'':'disabled'} data-go="${prev?prev.id:''}"><span>Anterior</span><b>${prev?esc(prev.name):''}</b></button>
+      <button ${next?'':'disabled'} data-go="${next?next.id:''}"><span>${next&&next.extra?'Extra':'Siguiente'}</span><b>${next?esc(next.name):''}</b></button>
+    </div>
+  </div></div>`;
+  const sh=$('#sheet');sh.classList.add('on');sh.scrollTop=0;
+  $('#sBack').onclick=()=>history.length>1&&lastTab?(location.hash=lastTab):(location.hash='ruta');
+  $('#doneBtn').onclick=()=>{done.has(id)?done.delete(id):done.add(id);save();renderList();openSheet(id)};
+  sh.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{if(b.dataset.go)location.hash='p-'+b.dataset.go});
+  sh.querySelectorAll('[data-skip]').forEach(b=>b.onclick=()=>{if(cur===id&&audio.src)audio.currentTime=Math.max(0,audio.currentTime+ +b.dataset.skip)});
+  const sc=$('#scrub-'+id);
+  sc.oninput=()=>{const f=sc.value/1000;sc.style.setProperty('--p',(f*100)+'%');if(cur===id&&audio.dataset.id===id&&audio.readyState>0)audio.currentTime=f*(audio.duration||s.dur);else start(id,f)};
+  bindPlay(sh);setUI();
+  setTimeout(()=>$('#sBack').focus({preventScroll:true}),50);
 }
-document.querySelectorAll('.check').forEach(b=>b.addEventListener('click',()=>{const id=STOPS[+b.dataset.i].id;done.has(id)?done.delete(id):done.add(id);saveDone();renderDone()}));
-renderDone();
+function closeSheet(){$('#sheet').classList.remove('on');sheetId=null}
 
-// Audio
-const blobs={};
-async function src(i){
-  if(blobs[i])return blobs[i];
-  try{const r=await fetch(STOPS[i].file);if(!r.ok)throw 0;blobs[i]=URL.createObjectURL(await r.blob());}
-  catch(e){blobs[i]=STOPS[i].file;}
-  return blobs[i];
+/* audio */
+const audio=$('#audio');let cur='intro';const blobs={};
+async function src(id){if(blobs[id])return blobs[id];try{const r=await fetch(byId[id].file);if(!r.ok)throw 0;blobs[id]=URL.createObjectURL(await r.blob())}catch(e){blobs[id]=byId[id].file}return blobs[id]}
+async function start(id,at){
+  cur=id;setUI();let u=blobs[id];
+  if(!u){$('#dTime').textContent='Cargando audio…';u=await src(id)}
+  if(cur!==id)return;
+  if(audio.dataset.id!==id){audio.src=u;audio.dataset.id=id}
+  if(at!=null){const go=()=>{audio.currentTime=at*(audio.duration||byId[id].dur)};audio.readyState>0?go():audio.addEventListener('loadedmetadata',go,{once:true})}
+  audio.play().catch(()=>{$('#dTime').textContent='Toca play otra vez'});
 }
-function load(i){cur=i;}
-async function start(i,at){
-  cur=i;setUI();
-  let u=blobs[i];
-  if(!u){document.getElementById('dockTime').textContent='Cargando audio…';u=await src(i);}
-  if(cur!==i)return;
-  if(audio.dataset.i!==String(i)){audio.src=u;audio.dataset.i=i;}
-  if(at!=null){const go=()=>{audio.currentTime=at*(audio.duration||STOPS[i].dur)};audio.readyState>0?go():audio.addEventListener('loadedmetadata',go,{once:true});}
-  audio.play().catch(()=>{document.getElementById('dockTime').textContent='Pulsa play de nuevo para escuchar'});
-}
+function toggle(id){if(id===cur&&audio.dataset.id===id){audio.paused?audio.play().catch(()=>{}):audio.pause()}else{audio.pause();start(id)}}
+function bindPlay(root){root.querySelectorAll('[data-play]').forEach(b=>b.onclick=()=>toggle(b.dataset.play))}
+bindPlay(document);
+$('#dPlay').onclick=()=>toggle(cur);
+$('#dNext').onclick=()=>{const i=ALL.findIndex(s=>s.id===cur);const n=ALL[Math.min(ALL.length-1,i+1)];if(n.id!==cur){audio.pause();start(n.id);if(sheetId)location.hash='p-'+n.id}};
+const openCur=()=>{if(cur!=='intro')location.hash='p-'+cur};
+$('#dArt').onclick=openCur;$('#dTxt').onclick=openCur;
 function setUI(){
-  const playing=!audio.paused;
-  STOPS.forEach((s,i)=>{const on=i===cur&&playing;
-    document.getElementById('p-'+s.id).classList.toggle('playing',on);
-    document.querySelector(`.play[data-i="${i}"] svg`).innerHTML=on?PAUSE:PLAY;
-    document.querySelector(`.play[data-i="${i}"]`).setAttribute('aria-label',(on?'Pausar ':'Escuchar ')+s.name);
-    svg.querySelector(`.node[data-i="${i}"]`).classList.toggle('playing',i===cur&&playing);
-  });
-  document.getElementById('dockIcon').innerHTML=playing?PAUSE:PLAY;
-  document.getElementById('dockPlay').setAttribute('aria-label',playing?'Pausar':'Reproducir');
-  const s=STOPS[cur];document.getElementById('dockName').textContent=label(s,cur)+' · '+s.name;
+  const on=!audio.paused&&audio.dataset.id===cur;const s=byId[cur];
+  $$('[data-play]').forEach(b=>{const me=b.dataset.play===cur&&on;b.classList.toggle('is-on',me);b.innerHTML=ico(me?'pause':'play');b.setAttribute('aria-label',me?'Pausar':'Escuchar')});
+  $('#dPlay').innerHTML=ico(on?'pause':'play');$('#dPlay').setAttribute('aria-label',on?'Pausar':'Reproducir');
+  $('#dName').textContent=(s.id==='intro'?'':(s.extra?'Extra · ':num(s)+' · '))+s.name;
+  $('#dArt').innerHTML=s.id==='intro'?`<div class="cover-bg" style="background:${grad(30)}"></div>${ico('headphones')}`:`<div class="cover-bg" style="background:${grad(s.hue)}"></div>${ico(s.icon)}`;
+  $$('.srow').forEach(r=>r.classList.toggle('is-playing',on&&r.dataset.open===cur));
+  markers&&Object.keys(markers).forEach(updPin);
 }
-function toggle(i){
-  if(i===cur&&audio.dataset.i===String(i)){audio.paused?audio.play().catch(()=>{}):audio.pause();return}
-  audio.pause();start(i);
-}
-document.querySelectorAll('.play').forEach(b=>b.addEventListener('click',()=>toggle(+b.dataset.i)));
-document.getElementById('dockPlay').addEventListener('click',()=>toggle(cur));
-document.getElementById('prev').addEventListener('click',()=>{const i=Math.max(0,cur-1);toggle(i===cur?cur:i);document.getElementById('p-'+STOPS[cur].id).scrollIntoView({block:'start'})});
-document.getElementById('next').addEventListener('click',()=>{const i=Math.min(STOPS.length-1,cur+1);if(i!==cur)toggle(i);document.getElementById('p-'+STOPS[cur].id).scrollIntoView({block:'start'})});
-['play','pause','ended'].forEach(ev=>audio.addEventListener(ev,setUI));
-audio.addEventListener('ended',()=>{const s=STOPS[cur];if(!done.has(s.id)){done.add(s.id);saveDone();renderDone()}});
+['play','pause','ended','loadedmetadata'].forEach(e=>audio.addEventListener(e,setUI));
+audio.addEventListener('ended',()=>{if(cur!=='intro'&&!done.has(cur)){done.add(cur);save();renderList();if(sheetId===cur)openSheet(cur)}});
 audio.addEventListener('timeupdate',()=>{
-  const d=audio.duration||STOPS[cur].dur,p=audio.currentTime/d*100;
-  const card=document.getElementById('p-'+STOPS[cur].id);
-  card.querySelector('.track i').style.width=p+'%';
-  card.querySelector('.time').textContent=fmt(audio.currentTime)+' / '+fmt(d);
-  document.getElementById('dockBar').style.width=p+'%';
-  document.getElementById('dockTime').textContent=fmt(audio.currentTime)+' / '+fmt(d);
+  const d=audio.duration||byId[cur].dur,p=audio.currentTime/d;
+  $('#dBar').style.width=(p*100)+'%';$('#dTime').textContent=fmt(audio.currentTime)+' / '+fmt(d);
+  if(sheetId===cur){const sc=$('#scrub-'+cur);if(sc&&document.activeElement!==sc){sc.value=Math.round(p*1000);sc.style.setProperty('--p',(p*100)+'%')}const t=$('.bp-time');if(t)t.textContent=fmt(audio.currentTime)+' / '+fmt(d)}
 });
-audio.addEventListener('error',()=>{document.getElementById('dockTime').textContent='No se pudo cargar el audio. Revisa la conexión.'});
-document.querySelectorAll('.track').forEach(t=>{
-  const seek=f=>{const i=+t.dataset.i;
-    if(i===cur&&audio.dataset.i===String(i)&&audio.readyState>0){audio.currentTime=f*(audio.duration||STOPS[i].dur);audio.play().catch(()=>{});}
-    else{audio.pause();start(i,f);}};
-  t.addEventListener('click',e=>{const r=t.getBoundingClientRect();seek(Math.min(1,Math.max(0,(e.clientX-r.left)/r.width)))});
-  t.addEventListener('keydown',e=>{if(+t.dataset.i!==cur)return;if(e.key==='ArrowRight')audio.currentTime+=10;if(e.key==='ArrowLeft')audio.currentTime-=10});
-});
-setUI();
-(async()=>{for(let i=0;i<STOPS.length;i++){await src(i)}})();
+audio.addEventListener('error',()=>{$('#dTime').textContent='No se pudo cargar. Revisa la conexión.'});
+
+/* map */
+let map=null,markers=null,routeLine=null,mapReady=false,meMarker=null;
+function updPin(id){const m=markers[id];if(!m)return;const s=byId[id];const el=m.getElement&&m.getElement();if(!el)return;const p=el.querySelector('.pin');if(!p)return;p.className='pin'+(s.extra?' extra':'')+(done.has(id)?' done':'')+(cur===id&&!audio.paused?' playing':'')}
+function schematic(){
+  const W=340,H=440,P=28;const lats=STOPS.map(s=>s.lat),lngs=STOPS.map(s=>s.lng);
+  const a=Math.min(...lats),b=Math.max(...lats),c=Math.min(...lngs),d=Math.max(...lngs);
+  const X=l=>P+(l-c)/(d-c)*(W-2*P),Y=l=>P+(b-l)/(b-a)*(H-2*P);
+  let h=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Esquema de la ruta"><polyline points="${MAIN.map(s=>X(s.lng)+','+Y(s.lat)).join(' ')}" fill="none" stroke="var(--sea-2)" stroke-width="2.5" stroke-linejoin="round"/>`;
+  const f=STOPS.find(s=>s.extra),bo=byId.boga;h+=`<line x1="${X(bo.lng)}" y1="${Y(bo.lat)}" x2="${X(f.lng)}" y2="${Y(f.lat)}" stroke="var(--cay)" stroke-width="2" stroke-dasharray="4 4"/>`;
+  STOPS.forEach(s=>{h+=`<g data-open="${s.id}" style="cursor:pointer"><circle cx="${X(s.lng)}" cy="${Y(s.lat)}" r="11" fill="${s.extra?'var(--cay)':'var(--sea)'}" stroke="var(--surface)" stroke-width="2"/><text x="${X(s.lng)}" y="${Y(s.lat)}" fill="#fff" font-family="JetBrains Mono,monospace" font-size="10" font-weight="600" text-anchor="middle" dominant-baseline="central">${num(s)}</text></g>`});
+  $('#schematic').innerHTML=h+'</svg>';$('#schematic').style.display='block';
+  $('#schematic').querySelectorAll('[data-open]').forEach(g=>g.onclick=()=>location.hash='p-'+g.dataset.open);
+  $('#mapNote').textContent='Mapa sin conexión: esquema orientativo';$('#meBtn').style.display='none';$('#fitBtn').style.display='none';
+}
+function initMap(){
+  if(mapReady){map&&map.invalidateSize();return}mapReady=true;
+  if(typeof L==='undefined'){schematic();return}
+  map=L.map('map',{zoomControl:false,attributionControl:true}).setView([40.9875,29.027],15);
+  const dark=document.documentElement.dataset.theme==='dark'||(!document.documentElement.dataset.theme&&matchMedia('(prefers-color-scheme: dark)').matches);
+  let ok=0,bad=0,fell=false;
+  const tl=L.tileLayer(`https://{s}.basemap.cartocdn.com/${dark?'dark_all':'rastertiles/voyager'}/{z}/{x}/{y}{r}.png`,{maxZoom:19,subdomains:'abcd',attribution:'© OpenStreetMap · © CARTO'}).addTo(map);
+  tl.on('tileload',()=>ok++);tl.on('tileerror',()=>{bad++;if(!ok&&bad>=4&&!fell){fell=true;$('#map').style.display='none';schematic()}});
+  routeLine=L.polyline(MAIN.map(s=>[s.lat,s.lng]),{color:getComputedStyle(document.documentElement).getPropertyValue('--sea-2').trim()||'#2D6577',weight:4,opacity:.85,dashArray:'1 8',lineCap:'round'}).addTo(map);
+  const f=STOPS.find(s=>s.extra);L.polyline([[byId.boga.lat,byId.boga.lng],[f.lat,f.lng]],{color:'#E8A055',weight:3,dashArray:'4 8'}).addTo(map);
+  markers={};
+  STOPS.forEach(s=>{
+    const m=L.marker([s.lat,s.lng],{icon:L.divIcon({className:'',html:`<div class="pin"><span>${num(s)}</span></div>`,iconSize:[30,30],iconAnchor:[15,30],popupAnchor:[0,-28]})}).addTo(map);
+    m.bindPopup(`<b>${esc(s.name)}</b><span style="color:var(--muted);font-size:.8rem">${esc(s.tr)}</span><br><button class="popbtn" data-open-pop="${s.id}">Abrir parada</button>`);
+    m.on('popupopen',e=>{const b=e.popup.getElement().querySelector('[data-open-pop]');b&&(b.onclick=()=>location.hash='p-'+s.id)});
+    markers[s.id]=m;
+  });
+  Object.keys(markers).forEach(updPin);
+  map.fitBounds(L.latLngBounds(STOPS.map(s=>[s.lat,s.lng])),{padding:[30,30]});
+}
+$('#fitBtn').onclick=()=>map&&map.fitBounds(L.latLngBounds(STOPS.map(s=>[s.lat,s.lng])),{padding:[30,30]});
+$('#meBtn').onclick=()=>{
+  if(!navigator.geolocation){$('#mapNote').textContent='Tu navegador no comparte la ubicación';return}
+  $('#mapNote').textContent='Buscando tu ubicación…';
+  navigator.geolocation.getCurrentPosition(p=>{const ll=[p.coords.latitude,p.coords.longitude];
+    if(!meMarker)meMarker=L.marker(ll,{icon:L.divIcon({className:'',html:'<div class="me"></div>',iconSize:[16,16],iconAnchor:[8,8]})}).addTo(map);else meMarker.setLatLng(ll);
+    map.setView(ll,16);$('#mapNote').textContent='Estás aquí (punto azul)'},
+   ()=>{$('#mapNote').textContent='No se pudo obtener la ubicación. Revisa los permisos.'},{enableHighAccuracy:true,timeout:10000});
+};
+
+/* food */
+const PLACES=[
+ ["Çiya Sofrası","Güneşlibahçe Sokak","Cocina tradicional de toda Anatolia del chef Musa Dağdeviren. Guisos, kebabs y postres poco vistos.",["Comida","Imprescindible"],"food",15,"Çiya Sofrası Kadıköy"],
+ ["Mercado de Kadıköy","Güneşlibahçe y alrededores","Midye dolma, bocadillo de pescado, turşu y börek para ir picando.",["Picoteo","Barato"],"fish",190,"Güneşlibahçe Sokak Kadıköy"],
+ ["Borsam Taşfırın","Mercado de Kadıköy","Lahmacun en horno de leña, con cordero picado a cuchillo y especias de Urfa.",["Lahmacun","Barato"],"food",30,"Borsam Taşfırın Kadıköy"],
+ ["Yanyalı Fehmi Lokantası","Mercado de Kadıköy","Casa de comidas desde 1919. Se elige en la vitrina; famosa por su albóndiga Yanya.",["Comida casera"],"food",60,"Yanyalı Fehmi Lokantası Kadıköy"],
+ ["Reks Kokoreç","Centro de Kadıköy","Mostrador pequeño de kokoreç y midye dolma. Muy popular de noche.",["Calle","Noche"],"fish",350,"Reks Kokoreç Kadıköy"],
+ ["Baylan","Muvakkithane Caddesi","Pastelería clásica de 1961. Kup Griye y café turco.",["Dulce","Café"],"cake",25,"Baylan Pastanesi Kadıköy"],
+ ["Ali Usta","Moda Caddesi","Helado estilo Maraş con más de cincuenta sabores.",["Dulce"],"icecream",160,"Dondurmacı Ali Usta Moda"],
+ ["Jardín de té de Moda","Moda Sahili","Çay y simit frente al mar para el atardecer.",["Té","Vistas"],"sunset",15,"Moda Aile Çay Bahçesi"],
+ ["Calle Kadife","Barlar Sokağı","Bares con música y cerveza artesana. Mejor a partir de las 21:00.",["Noche"],"glass",290,"Kadife Sokak Kadıköy"]];
+$('#places').innerHTML=PLACES.map(p=>`<a class="card place" style="text-decoration:none" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p[6])}" target="_blank" rel="noopener"><div class="art" style="background:${grad(p[5])}">${ico(p[4])}</div><div><b>${esc(p[0])}</b><div class="mono" style="font-size:.7rem;color:var(--muted)">${esc(p[1])}</div><p>${esc(p[2])}</p>${p[3].map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</div></a>`).join('');
+const DISHES=[
+ ["Balık ekmek","bálik ekmék","Bocadillo de pescado a la plancha con cebolla y lechuga.","Calle"],
+ ["Midye dolma","midié dolmá","Mejillones rellenos de arroz especiado. Con limón, uno detrás de otro.","Calle"],
+ ["Kokoreç","kokoréch","Tripas de cordero a la plancha, picadas en pan con orégano y guindilla.","Calle"],
+ ["Simit","simít","Rosca de pan con sésamo. El desayuno de Estambul.","Calle"],
+ ["Börek","burék","Hojaldre relleno de queso, carne o espinacas.","Calle"],
+ ["Lahmacun","lajmayún","Masa muy fina con carne picada. Se enrolla con perejil y limón.","Platos"],
+ ["Pide","pidé","Pan en forma de barca con queso, carne o huevo.","Platos"],
+ ["İçli köfte","ichlí kofté","Croqueta de bulgur rellena de carne y nueces.","Platos"],
+ ["Mantı","mantí","Raviolis pequeños con yogur de ajo y mantequilla con pimentón.","Platos"],
+ ["Hamsi","jamsí","Anchoa del mar Negro frita. Temporada de otoño e invierno.","Platos"],
+ ["Meze","mezé","Entrantes fríos para compartir: berenjena, yogur, habas, ensaladas.","Platos"],
+ ["Baklava","baklavá","Hojaldre con pistacho o nuez y almíbar.","Dulces"],
+ ["Künefe","kunefé","Cabello de ángel crujiente con queso fundido y almíbar. Se toma caliente.","Dulces"],
+ ["Lokum","lokúm","La delicia turca: gelatina de azúcar con frutos secos o rosa.","Dulces"],
+ ["Çay","chai","Té negro en vaso de tulipán. Sin leche, con azúcar al gusto.","Bebidas"],
+ ["Türk kahvesi","turk kajvesí","Café turco sin filtrar. El poso se queda en la taza.","Bebidas"],
+ ["Ayran","airán","Yogur líquido salado. Acompaña muy bien la carne.","Bebidas"],
+ ["Salep","salép","Bebida caliente de leche espesa con canela. Típica de invierno.","Bebidas"],
+ ["Turşu suyu","turshú suyú","Caldo de encurtidos para beber. Ácido y picante.","Bebidas"],
+ ["Rakı","rakí","Anís turco. Con agua se vuelve blanco: la «leche de león».","Bebidas"]];
+const CATS=['Todo','Calle','Platos','Dulces','Bebidas'];let cat='Todo';
+function renderDict(){
+  $('#filters').innerHTML=CATS.map(c=>`<button aria-pressed="${c===cat}" data-cat="${c}">${c}</button>`).join('');
+  $$('#filters [data-cat]').forEach(b=>b.onclick=()=>{cat=b.dataset.cat;renderDict()});
+  $('#dict').innerHTML=DISHES.filter(d=>cat==='Todo'||d[3]===cat).map(d=>`<div class="card dish"><b>${esc(d[0])}</b><span class="say">${esc(d[1])}</span><p>${esc(d[2])}</p></div>`).join('');
+}
+renderDict();
+
+/* info */
+const PHR=[["Merhaba","merjabá","Hola"],["Teşekkürler","teshekkurlér","Gracias"],["Lütfen","lutfén","Por favor"],["Bir çay, lütfen","bir chai, lutfén","Un té, por favor"],["Hesap, lütfen","jesáp, lutfén","La cuenta, por favor"],["Ne kadar?","ne kadár","¿Cuánto cuesta?"],["Çok güzel","chok guzél","Muy bonito / muy rico"],["Afiyet olsun","afiyét olsún","Que aproveche"],["Şerefe","sherefé","Salud (al brindar)"],["Tuvalet nerede?","tuvalét neredé","¿Dónde está el baño?"]];
+$('#phrases').innerHTML=PHR.map(p=>`<div class="card phrase"><b>${esc(p[0])}</b><span class="es">${esc(p[2])}</span><span class="say">${esc(p[1])}</span></div>`).join('');
+const TL=[["685 a.C.","Colonos de Megara fundan Calcedonia, la «tierra de los ciegos»."],["451","Concilio de Calcedonia en la basílica de Santa Eufemia."],["s. XV","Tras la conquista otomana, el barrio pasa a llamarse Kadıköy, «el pueblo del juez»."],["1858","Se reconstruye la iglesia armenia de Surp Takavor."],["1864","Isidore Bonheur firma el toro de bronce."],["1907","Se funda el Fenerbahçe en Kadıköy."],["1908","Se inaugura la estación de Haydarpaşa."],["1917","Se construye el muelle de Moda."],["1927","Abre el edificio de la Ópera Süreyya, que funcionará como cine."],["1961","Abre la pastelería Baylan en Kadıköy."],["1987","El toro llega a la plaza de Altıyol."],["2007","La Süreyya reabre por fin como ópera."],["2012","Primer festival Mural İstanbul en Yeldeğirmeni."],["2026","Terminan las fachadas al mar de Haydarpaşa. Y vosotros, de visita."]];
+$('#timeline').innerHTML=TL.map((t,i)=>`<li class="${i===TL.length-1?'now':''}"><span class="y">${t[0]}</span><p>${esc(t[1])}</p></li>`).join('');
+const PR=[["ferry","Ferry","Kadıköy–Kabataş, 57 TL con Istanbulkart. Desde Eminönü, Karaköy y Beşiktaş, unos 20–25 min."],["euro","Pagar","La Istanbulkart sirve para ferry, metro, tranvía y bus. En los tornos también aceptan tarjeta bancaria sin contacto."],["tram","Volver desde Moda","A pie al muelle de Kadıköy en unos 20 min, o en los minibuses eléctricos mientras el tranvía está en obras."],["cup","Propinas","En restaurantes, entre un 5 y un 10 % si el servicio ha ido bien."],["shirt","Iglesias y mezquitas","Hombros cubiertos, sin gorra y en silencio. En las mezquitas, sin zapatos y las mujeres con pañuelo."],["cloud","Tiempo","Noviembre suele ser fresco, entre 10 y 17 °C, con días de lluvia. Llevad algo de abrigo."],["clock","Horarios","Barış Manço: 9:00–16:00, lunes cerrado. Atardecer en Moda ≈ 17:05."],["phone","Emergencias","112, número único de emergencias en Turquía."]];
+$('#practical').innerHTML=PR.map(p=>`<div><i>${ico(p[0])}</i><div><b>${esc(p[1])}</b><span>${esc(p[2])}</span></div></div>`).join('');
+
+/* routing */
+let lastTab='ruta';
+function route(){
+  const h=(location.hash||'#ruta').slice(1);
+  if(h.startsWith('p-')&&byId[h.slice(2)]){openSheet(h.slice(2));return}
+  closeSheet();
+  const tab=['ruta','mapa','comer','info'].includes(h)?h:'ruta';lastTab=tab;
+  $$('.view').forEach(v=>v.classList.toggle('on',v.id==='v-'+tab));
+  $$('.tabs a').forEach(a=>{if(a.dataset.tab===tab)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
+  if(tab==='mapa')setTimeout(initMap,30);
+  window.scrollTo(0,0);
+}
+addEventListener('hashchange',route);
+addEventListener('keydown',e=>{if(e.key==='Escape'&&sheetId)location.hash=lastTab});
+renderList();route();setUI();
+/* prefetch audio in order */
+(async()=>{for(const s of ALL){await src(s.id)}})();
 </script>
 
 </body>
