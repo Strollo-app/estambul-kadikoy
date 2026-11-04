@@ -1429,6 +1429,31 @@ audio.addEventListener('timeupdate',()=>{
 });
 audio.addEventListener('error',()=>{$('#dTime').textContent='No se pudo cargar. Revisa la conexión.'});
 
+
+/* ---------- LOCATION HELPERS ---------- */
+function geoMsg(err){
+  if(!err)return 'No se pudo obtener tu ubicación.';
+  if(err.code===1)return 'Ubicación bloqueada. En Ajustes → Privacidad y seguridad → Localización → Sitios web de Safari, elige «Mientras se usa» y vuelve a abrir la app.';
+  if(err.code===2)return 'El móvil no encuentra señal de ubicación. Sal a la calle o activa el wifi y vuelve a intentarlo.';
+  if(err.code===3)return 'Está tardando en encontrarte. Sigo intentándolo…';
+  return 'No se pudo obtener tu ubicación.';
+}
+function getPos(ok,bad){
+  navigator.geolocation.getCurrentPosition(ok,e=>{
+    if(e.code===1){bad(e);return}
+    navigator.geolocation.getCurrentPosition(ok,bad,{enableHighAccuracy:false,timeout:20000,maximumAge:60000});
+  },{enableHighAccuracy:true,timeout:12000,maximumAge:10000});
+}
+function watchPos(ok,bad){
+  let id=null,lowId=null,got=false;
+  id=navigator.geolocation.watchPosition(p=>{got=true;ok(p)},e=>{
+    if(e.code===1){bad(e);return}
+    bad(e,true);
+    if(lowId==null)lowId=navigator.geolocation.watchPosition(p=>{got=true;ok(p)},e2=>{if(!got)bad(e2,e2.code===3)},{enableHighAccuracy:false,maximumAge:30000,timeout:30000});
+  },{enableHighAccuracy:true,maximumAge:5000,timeout:15000});
+  return {clear(){navigator.geolocation.clearWatch(id);if(lowId!=null)navigator.geolocation.clearWatch(lowId)}};
+}
+
 /* ---------- MAP ---------- */
 let map=null,markers=null,layer=null,mapReady=false,meMarker=null,schem=false;
 function updPin(id){const m=markers&&markers[id];if(!m)return;const s=byId[id];const el=m.getElement&&m.getElement();if(!el)return;const p=el.querySelector('.pin');if(!p)return;p.className='pin'+(s.extra?' extra':'')+(done.has(id)?' done':'')+(cur===id&&!audio.paused?' playing':'')}
@@ -1474,10 +1499,10 @@ $('#fitBtn').onclick=()=>map&&map.fitBounds(L.latLngBounds(R.stops.map(s=>[s.lat
 $('#meBtn').onclick=()=>{
   if(!navigator.geolocation){$('#mapNote').textContent='Tu navegador no comparte la ubicación';return}
   $('#mapNote').textContent='Buscando tu ubicación…';
-  navigator.geolocation.getCurrentPosition(p=>{const ll=[p.coords.latitude,p.coords.longitude];
+  getPos(p=>{const ll=[p.coords.latitude,p.coords.longitude];
     if(!meMarker)meMarker=L.marker(ll,{icon:L.divIcon({className:'',html:'<div class="me"></div>',iconSize:[16,16],iconAnchor:[8,8]})}).addTo(map);else meMarker.setLatLng(ll);
     map.setView(ll,16);$('#mapNote').textContent='Estás aquí (punto azul)'},
-   ()=>{$('#mapNote').textContent='No se pudo obtener la ubicación. Revisa los permisos.'},{enableHighAccuracy:true,timeout:10000});
+   e=>{$('#mapNote').textContent=geoMsg(e)});
 };
 
 
@@ -1527,7 +1552,7 @@ function startNav(id){
   stopNav(true);nav={t:s,route:null,steps:[],stepI:0,last:null,fetching:false};
   location.hash='mapa';
   setTimeout(()=>{initMap();showNavPanel('Buscando tu ubicación…','');
-    nav.watch=navigator.geolocation.watchPosition(p=>onNavPos(p.coords.latitude,p.coords.longitude),()=>{alertNav('No se pudo obtener tu ubicación. Revisa los permisos o usa Google Maps.')},{enableHighAccuracy:true,maximumAge:3000,timeout:20000});
+    nav.watch=watchPos(p=>onNavPos(p.coords.latitude,p.coords.longitude),(err,soft)=>{if(nav&&!nav.last)alertNav(geoMsg(err))});
   },80);
 }
 function alertNav(msg){showNavPanel(msg,'');}
@@ -1570,7 +1595,7 @@ function showNavPanel(instr,meta){
   $('#navPanel').innerHTML=`<div class="nav-top"><div class="nav-ico">${ico('walk')}</div><div><small>Hacia ${esc(s.name)}</small><b>${esc(instr)}</b></div></div><div class="nav-bot"><span class="nav-meta">${esc(meta)}</span><a class="chip" href="${gm}" target="_blank" rel="noopener">Google Maps</a><button class="chip" id="navStop">Salir</button></div>`;
   $('#navPanel').hidden=false;$('#navStop').onclick=()=>stopNav();
 }
-function stopNav(keep){if(nav){if(nav.watch!=null)navigator.geolocation.clearWatch(nav.watch);if(nav.line)nav.line.remove()}nav=null;if(!keep)$('#navPanel').hidden=true}
+function stopNav(keep){if(nav){if(nav.watch)nav.watch.clear();if(nav.line)nav.line.remove()}nav=null;if(!keep)$('#navPanel').hidden=true}
 
 
 /* ---------- RESTAURANTS ON MAP ---------- */
@@ -1624,15 +1649,15 @@ function renderNearCard(on,msg){
 function startNear(){
   if(!navigator.geolocation){renderNearCard(false,'Este navegador no comparte la ubicación.');return}
   renderNearCard(true,'Buscando tu ubicación…');
-  watchId=navigator.geolocation.watchPosition(p=>{
+  watchId=watchPos(p=>{
     renderNearCard(true);
     const {latitude:la,longitude:lo}=p.coords;let best=null,bd=1e9;
     Object.values(byId).forEach(s=>{if(s.isIntro)return;const d=distM(la,lo,s.lat,s.lng);if(d<bd){bd=d;best=s}});
     if(best&&bd<80&&!nearShown.has(best.id)&&!done.has(best.id)){nearShown.add(best.id);showToast(best,bd)}
-  },()=>{stopNear();renderNearCard(false,'No se pudo usar la ubicación. Revisa los permisos del navegador.')},{enableHighAccuracy:true,maximumAge:15000,timeout:20000});
+  },(err,soft)=>{if(soft){renderNearCard(true,geoMsg(err));return}stopNear();renderNearCard(false,geoMsg(err))});
   store.set('kdk-near',true);
 }
-function stopNear(){if(watchId!=null)navigator.geolocation.clearWatch(watchId);watchId=null;store.set('kdk-near',false);renderNearCard(false)}
+function stopNear(){if(watchId!=null)watchId.clear();watchId=null;store.set('kdk-near',false);renderNearCard(false)}
 function showToast(s,d){
   const r=routeOf[s.id];
   $('#toast').innerHTML=`<div class="tart" style="background:${grad(s.hue)}">${ico(s.icon)}</div><div class="ttxt"><small>Estás a ${Math.round(d)} m · ${esc(r.short)}</small><b>${esc(s.name)}</b></div><button class="pbtn" id="tPlay" aria-label="Escuchar">${ico('play')}</button><button class="tx" id="tClose" aria-label="Cerrar">×</button>`;
