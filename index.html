@@ -911,7 +911,8 @@ details.script p{margin:.8em 0 0;max-width:65ch;color:var(--ink)}
 .gfcard{padding:16px;display:grid;gap:10px;border:2px dashed var(--ok)}
 .gfcard p[lang="tr"]{margin:0;font-size:1.05rem;font-weight:600;line-height:1.45}
 .gfcard .es{margin:0;font-size:.85rem;color:var(--muted)}
-.gfcard .chip{justify-self:start}
+.gfcard .chips{justify-self:start}
+#sayCard.on{background:var(--cay);border-color:var(--cay)}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .gflevel.l2{color:#8EC6D8}}
 :root[data-theme="dark"] .gflevel.l2{color:#8EC6D8}
 
@@ -924,7 +925,10 @@ details.script p{margin:.8em 0 0;max-width:65ch;color:var(--ink)}
 .timeline .y{font-family:var(--f-mono);font-weight:600;font-size:.82rem;text-align:right;padding-top:3px;font-variant-numeric:tabular-nums}
 .timeline p{margin:0;font-size:.92rem}
 .phrases{display:grid;gap:8px}
-.phrase{display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:12px 14px;align-items:center}
+.phrase{display:grid;grid-template-columns:auto 1fr auto;gap:2px 12px;padding:12px 14px;align-items:center}
+.say-btn{grid-row:span 2;width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--raise);color:var(--sea-2);display:grid;place-items:center;cursor:pointer}
+.say-btn.on{background:var(--cay);border-color:var(--cay);color:#fff}
+.say-btn .ico{width:18px;height:18px}
 .phrase b{font-weight:600}
 .phrase .say{font-family:var(--f-mono);font-size:.74rem;color:var(--cay)}
 .phrase .es{grid-row:span 2;color:var(--muted);font-size:.88rem;text-align:right}
@@ -997,6 +1001,7 @@ details.script p{margin:.8em 0 0;max-width:65ch;color:var(--ink)}
   <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18a4 4 0 0 1-.5-8A6 6 0 0 1 18 9a4.5 4.5 0 0 1-.5 9z"/><path d="M9 21l1-2M14 21l1-2"/></symbol>
   <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M8 3l-5 3 2 4 3-1v12h8V9l3 1 2-4-5-3a4 4 0 0 1-8 0z"/></symbol>
   <symbol id="i-cup" viewBox="0 0 24 24"><path d="M7 8h10l-1.5 12h-7z"/><path d="M6 8c0-2 2-3 6-3s6 1 6 3"/></symbol>
+  <symbol id="i-speaker" viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></symbol>
   <symbol id="i-chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
  </defs>
 </svg>
@@ -1092,7 +1097,7 @@ details.script p{margin:.8em 0 0;max-width:65ch;color:var(--ink)}
     <div class="card gfcard">
      <p lang="tr" id="gfCardTr">Çölyak hastasıyım. Buğday, arpa ve çavdar içeren hiçbir şey yiyemem: ekmek, un, bulgur, yufka, şehriye, galeta unu ve bira dahil. Yemeğimin temiz tavada veya temiz ızgarada hazırlanmasını ve ekmekle temas etmemesini rica ederim. Teşekkür ederim!</p>
      <p class="es">Soy celíaco/a. No puedo comer nada con trigo, cebada ni centeno: pan, harina, bulgur, masa yufka, fideos, pan rallado ni cerveza. Por favor, preparad mi plato en una sartén o parrilla limpia y sin que toque el pan. ¡Gracias!</p>
-     <button class="chip" id="copyCard">Copiar el texto en turco</button>
+     <div class="chips"><button class="chip primary" id="sayCard"><svg class="ico"><use href="#i-speaker"/></svg>Escuchar en turco</button><button class="chip" id="copyCard">Copiar el texto en turco</button></div>
     </div>
     <div class="phrases" id="gfphrases"></div>
    </div>
@@ -1108,7 +1113,7 @@ details.script p{margin:.8em 0 0;max-width:65ch;color:var(--ink)}
  <!-- INFO -->
  <section class="view" id="v-info" aria-label="Información">
   <div class="pad"><div class="inner stack">
-   <div class="sec-title"><h2>Frases útiles</h2><span class="eyebrow">Con pronunciación</span></div>
+   <div class="sec-title"><h2>Frases útiles</h2><span class="eyebrow">Toca el altavoz</span></div>
    <div class="phrases" id="phrases"></div>
    <div class="sec-title"><h2>Kadıköy en el tiempo</h2></div>
    <div class="card block"><ol class="timeline" id="timeline"></ol></div>
@@ -1318,6 +1323,16 @@ $('#meBtn').onclick=()=>{
 };
 
 /* food */
+const TR={"Merhaba": "audio/tr/merhaba.mp3", "Teşekkürler": "audio/tr/tesekkurler.mp3", "Lütfen": "audio/tr/lutfen.mp3", "Bir çay, lütfen": "audio/tr/bir-cay-lutfen.mp3", "Hesap, lütfen": "audio/tr/hesap-lutfen.mp3", "Ne kadar?": "audio/tr/ne-kadar.mp3", "Çok güzel": "audio/tr/cok-guzel.mp3", "Afiyet olsun": "audio/tr/afiyet-olsun.mp3", "Şerefe": "audio/tr/serefe.mp3", "Tuvalet nerede?": "audio/tr/tuvalet-nerede.mp3", "Çölyak hastasıyım": "audio/tr/colyak-hastasiyim.mp3", "Glutensiz mi?": "audio/tr/glutensiz-mi.mp3", "İçinde un var mı?": "audio/tr/icinde-un-var-mi.mp3", "Ekmeksiz, lütfen": "audio/tr/ekmeksiz-lutfen.mp3", "Ayrı tavada yapabilir misiniz?": "audio/tr/ayri-tavada-yapabilir-misiniz.mp3", "Çölyak hastasıyım. Buğday, arpa ve çavdar içeren hiçbir şey yiyemem: ekmek, un, bulgur, yufka, şehriye, galeta unu ve bira dahil. Yemeğimin temiz tavada veya temiz ızgarada hazırlanmasını ve ekmekle temas etmemesini rica ederim. Teşekkür ederim!": "audio/tr/colyak-hastasiyim-bugday-arpa-ve-cavdar-.mp3"};
+let sayA=null,sayBtn=null;
+function sayTr(t,btn){const f=TR[t];if(!f)return;if(!audio.paused)audio.pause();
+  if(sayA){sayA.pause();sayBtn&&sayBtn.classList.remove('on')}
+  if(sayBtn===btn&&sayA&&!sayA.ended&&sayA.currentTime>0&&sayA._stop){sayA=null;sayBtn=null;return}
+  sayA=new Audio(f);sayBtn=btn;btn.classList.add('on');
+  sayA.onended=sayA.onerror=()=>btn.classList.remove('on');
+  sayA.play().catch(()=>btn.classList.remove('on'))}
+const sayHTML=t=>TR[t]?`<button class="say-btn" data-say="${esc(t)}" aria-label="Escuchar «${esc(t)}» en turco">${ico('speaker')}</button>`:'';
+function bindSay(root){root.querySelectorAll('[data-say]').forEach(b=>b.onclick=()=>sayTr(b.dataset.say,b))}
 const PLACES=[
  {n:"Çiya Sofrası",z:"Güneşlibahçe Sk. · mercado",d:"Cocina tradicional de toda Anatolia del chef Musa Dağdeviren: guisos, kebabs, verduras rellenas y postres poco vistos.",t:["Comida"],tags:["Imprescindible"],i:"food",h:15,q:"Çiya Sofrası Kadıköy"},
  {n:"Yanyalı Fehmi Lokantası",z:"Mercado de Kadıköy",d:"Casa de comidas desde 1919. Se elige en la vitrina; famosa por su albóndiga Yanya.",t:["Comida"],tags:["Desde 1919"],i:"food",h:60,q:"Yanyalı Fehmi Lokantası Kadıköy"},
@@ -1358,8 +1373,9 @@ const GFW=[["alert","Bulgur","Está en el çiğ köfte, el kısır y el içli k�
 $('#gfdrinks').innerHTML=GFD.map(p=>`<div><i>${ico(p[0])}</i><div><b>${esc(p[1])}</b><span>${esc(p[2])}</span></div></div>`).join('');
 $('#gfwarn').innerHTML=GFW.map(p=>`<div><i style="${p[0]==='check'?'color:var(--ok)':'color:var(--cay)'}">${ico(p[0])}</i><div><b>${esc(p[1])}</b><span>${esc(p[2])}</span></div></div>`).join('');
 const GFP=[["Çölyak hastasıyım","cholyák jastasiyím","Soy celíaco/a"],["Glutensiz mi?","glutensís mi","¿Es sin gluten?"],["İçinde un var mı?","ichindé un var mi","¿Lleva harina?"],["Ekmeksiz, lütfen","ekmeksís, lutfén","Sin pan, por favor"],["Ayrı tavada yapabilir misiniz?","airí tavadá yapabilír misinís","¿Lo podéis hacer en una sartén aparte?"]];
-$('#gfphrases').innerHTML=GFP.map(p=>`<div class="card phrase"><b>${esc(p[0])}</b><span class="es">${esc(p[2])}</span><span class="say">${esc(p[1])}</span></div>`).join('');
+$('#gfphrases').innerHTML=GFP.map(p=>`<div class="card phrase">${sayHTML(p[0])}<b>${esc(p[0])}</b><span class="es">${esc(p[2])}</span><span class="say">${esc(p[1])}</span></div>`).join('');
 $('#copyCard').onclick=async()=>{const t=$('#gfCardTr').textContent;try{await navigator.clipboard.writeText(t);$('#copyCard').textContent='Copiado'}catch(e){const r=document.createRange();r.selectNodeContents($('#gfCardTr'));const s=getSelection();s.removeAllRanges();s.addRange(r);$('#copyCard').textContent='Texto seleccionado: cópialo'}setTimeout(()=>$('#copyCard').textContent='Copiar el texto en turco',2500)};
+$('#sayCard').onclick=()=>sayTr($('#gfCardTr').textContent.trim(),$('#sayCard'));
 function showSeg(k){$$('.seg [data-seg]').forEach(b=>b.setAttribute('aria-selected',b.dataset.seg===k));$$('.segpane').forEach(p=>p.hidden=p.id!=='seg-'+k);window.scrollTo(0,0)}
 $$('.seg [data-seg]').forEach(b=>b.onclick=()=>showSeg(b.dataset.seg));
 renderPlaces();
@@ -1394,7 +1410,7 @@ renderDict();
 
 /* info */
 const PHR=[["Merhaba","merjabá","Hola"],["Teşekkürler","teshekkurlér","Gracias"],["Lütfen","lutfén","Por favor"],["Bir çay, lütfen","bir chai, lutfén","Un té, por favor"],["Hesap, lütfen","jesáp, lutfén","La cuenta, por favor"],["Ne kadar?","ne kadár","¿Cuánto cuesta?"],["Çok güzel","chok guzél","Muy bonito / muy rico"],["Afiyet olsun","afiyét olsún","Que aproveche"],["Şerefe","sherefé","Salud (al brindar)"],["Tuvalet nerede?","tuvalét neredé","¿Dónde está el baño?"]];
-$('#phrases').innerHTML=PHR.map(p=>`<div class="card phrase"><b>${esc(p[0])}</b><span class="es">${esc(p[2])}</span><span class="say">${esc(p[1])}</span></div>`).join('');
+$('#phrases').innerHTML=PHR.map(p=>`<div class="card phrase">${sayHTML(p[0])}<b>${esc(p[0])}</b><span class="es">${esc(p[2])}</span><span class="say">${esc(p[1])}</span></div>`).join('');
 const TL=[["685 a.C.","Colonos de Megara fundan Calcedonia, la «tierra de los ciegos»."],["451","Concilio de Calcedonia en la basílica de Santa Eufemia."],["s. XV","Tras la conquista otomana, el barrio pasa a llamarse Kadıköy, «el pueblo del juez»."],["1858","Se reconstruye la iglesia armenia de Surp Takavor."],["1864","Isidore Bonheur firma el toro de bronce."],["1907","Se funda el Fenerbahçe en Kadıköy."],["1908","Se inaugura la estación de Haydarpaşa."],["1917","Se construye el muelle de Moda."],["1927","Abre el edificio de la Ópera Süreyya, que funcionará como cine."],["1961","Abre la pastelería Baylan en Kadıköy."],["1987","El toro llega a la plaza de Altıyol."],["2007","La Süreyya reabre por fin como ópera."],["2012","Primer festival Mural İstanbul en Yeldeğirmeni."],["2026","Terminan las fachadas al mar de Haydarpaşa. Y vosotros, de visita."]];
 $('#timeline').innerHTML=TL.map((t,i)=>`<li class="${i===TL.length-1?'now':''}"><span class="y">${t[0]}</span><p>${esc(t[1])}</p></li>`).join('');
 const PR=[["ferry","Ferry","Kadıköy–Kabataş, 57 TL con Istanbulkart. Desde Eminönü, Karaköy y Beşiktaş, unos 20–25 min."],["euro","Pagar","La Istanbulkart sirve para ferry, metro, tranvía y bus. En los tornos también aceptan tarjeta bancaria sin contacto."],["tram","Volver desde Moda","A pie al muelle de Kadıköy en unos 20 min, o en los minibuses eléctricos mientras el tranvía está en obras."],["cup","Propinas","En restaurantes, entre un 5 y un 10 % si el servicio ha ido bien."],["shirt","Iglesias y mezquitas","Hombros cubiertos, sin gorra y en silencio. En las mezquitas, sin zapatos y las mujeres con pañuelo."],["cloud","Tiempo","Noviembre suele ser fresco, entre 10 y 17 °C, con días de lluvia. Llevad algo de abrigo."],["clock","Horarios","Barış Manço: 9:00–16:00, lunes cerrado. Atardecer en Moda ≈ 17:05."],["phone","Emergencias","112, número único de emergencias en Turquía."]];
@@ -1416,7 +1432,7 @@ function route(){
 }
 addEventListener('hashchange',route);
 addEventListener('keydown',e=>{if(e.key==='Escape'&&sheetId)location.hash=lastTab});
-renderList();route();setUI();
+renderList();route();setUI();bindSay(document);
 /* prefetch audio in order */
 (async()=>{for(const s of ALL){await src(s.id)}})();
 </script>
