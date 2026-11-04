@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta property="og:title" content="Kadıköy y Moda a pie">
+<meta property="og:description" content="Audioguía del grupo: 11 paradas por Kadıköy y Moda">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Kadıköy y Moda a pie</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gloock&family=Commissioner:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: ferry-ticket header over a Marmara-blue band with the vapur's yellow stripe, then a route schematic and a numbered walking sequence; a mini-player docks at the bottom. */
+:root{
+  --bg:#EEF2F3; --surface:#FFFFFF; --ink:#13212B; --muted:#5A6A74; --line:#D4DDE1;
+  --sea:#1F4555; --sea-ink:#EAF2F4; --water:#CFDEE4;
+  --cay:#B8661A; --cay-soft:#F6E6D3; --stripe:#E9B22A;
+  --ok:#2F7D5B;
+  --f-display:"Gloock", "Iowan Old Style", Georgia, serif;
+  --f-body:"Commissioner", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono:"JetBrains Mono", ui-monospace, Menlo, monospace;
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E161C; --surface:#16222A; --ink:#E7EEF1; --muted:#9AAAB3; --line:#26343D;
+  --sea:#13303C; --sea-ink:#E3EEF2; --water:#1B3542;
+  --cay:#E39A45; --cay-soft:#3A2817; --stripe:#E9B22A; --ok:#5FBF91; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E161C; --surface:#16222A; --ink:#E7EEF1; --muted:#9AAAB3; --line:#26343D;
+  --sea:#13303C; --sea-ink:#E3EEF2; --water:#1B3542;
+  --cay:#E39A45; --cay-soft:#3A2817; --stripe:#E9B22A; --ok:#5FBF91; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;padding-bottom:110px}
+.wrap{max-width:760px;margin:0 auto;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0;letter-spacing:.005em}
+.mono{font-family:var(--f-mono);font-size:.78rem;letter-spacing:.02em}
+.eyebrow{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--cay);outline-offset:2px;border-radius:6px}
+
+/* Hero */
+.hero{background:var(--sea);color:var(--sea-ink);position:relative}
+.hero .wrap{padding-block:36px 30px;display:grid;gap:18px}
+.hero .eyebrow{color:color-mix(in srgb, var(--sea-ink) 70%, transparent)}
+.hero h1{font-size:clamp(2.6rem, 9vw, 4.2rem);line-height:.98}
+.hero h1 em{font-style:normal;color:var(--stripe)}
+.hero p{margin:0;max-width:52ch;color:color-mix(in srgb, var(--sea-ink) 86%, transparent)}
+.ticket{display:flex;flex-wrap:wrap;gap:0;border:1px solid color-mix(in srgb, var(--sea-ink) 25%, transparent);border-radius:10px;overflow:hidden;width:fit-content;max-width:100%}
+.ticket div{padding:10px 16px;border-right:1px dashed color-mix(in srgb, var(--sea-ink) 25%, transparent);display:grid;gap:2px}
+.ticket div:last-child{border-right:0}
+.ticket b{font-family:var(--f-mono);font-weight:600;font-size:1rem;font-variant-numeric:tabular-nums}
+.ticket span{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;opacity:.7}
+.stripe{height:10px;background:var(--stripe)}
+.route-line{font-family:var(--f-mono);font-size:.82rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.route-line i{flex:0 1 60px;height:1px;background:currentColor;opacity:.5;min-width:24px}
+
+/* Notices */
+.notices{display:grid;gap:10px;margin-block:22px}
+.notice{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px}
+.notice .tag{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:999px;background:var(--cay-soft);color:var(--cay);white-space:nowrap;font-weight:600}
+.notice p{margin:0;font-size:.93rem;min-width:0}
+.notice.today{border-color:var(--cay)}
+
+/* Map */
+section{margin-block:34px}
+.sec-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sec-head h2{font-size:1.75rem}
+.map{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px}
+.map svg{display:block;width:100%;height:auto;max-height:460px}
+.map .note{font-size:.78rem;color:var(--muted);margin:8px 4px 0}
+.node{cursor:pointer}
+.node circle.dot{fill:var(--surface);stroke:var(--sea);stroke-width:2}
+.node.extra circle.dot{stroke:var(--cay);stroke-dasharray:3 2}
+.node.done circle.dot{fill:var(--ok);stroke:var(--ok)}
+.node text.n{font-family:var(--f-mono);font-size:10px;font-weight:600;fill:var(--ink);text-anchor:middle;dominant-baseline:central}
+.node.done text.n{fill:var(--surface)}
+.node text.lbl{font-family:var(--f-body);font-size:10.5px;fill:var(--muted)}
+.node.playing circle.dot{fill:var(--cay);stroke:var(--cay)}
+.node.playing text.n{fill:#fff}
+
+/* Progress */
+.progress{display:flex;align-items:center;gap:12px;font-size:.85rem;color:var(--muted)}
+.bar{flex:1;height:6px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--ok);transition:width .3s}
+
+/* Stops */
+.stops{list-style:none;margin:0;padding:0;display:grid;gap:0}
+.stop{position:relative;display:grid;grid-template-columns:44px 1fr;gap:14px;padding-bottom:26px}
+.stop::before{content:"";position:absolute;left:21px;top:44px;bottom:0;width:2px;background:repeating-linear-gradient(var(--line) 0 6px, transparent 6px 11px)}
+.stop:last-child::before{display:none}
+.num{width:44px;height:44px;border-radius:50%;border:2px solid var(--sea);display:grid;place-items:center;font-family:var(--f-mono);font-weight:600;background:var(--bg);position:relative;z-index:1}
+.stop.extra .num{border-color:var(--cay);border-style:dashed;color:var(--cay);font-size:.7rem}
+.stop.done .num{background:var(--ok);border-color:var(--ok);color:var(--surface)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:grid;gap:14px;min-width:0}
+.stop.playing .card{border-color:var(--cay);box-shadow:0 0 0 3px color-mix(in srgb, var(--cay) 18%, transparent)}
+.walk{font-family:var(--f-mono);font-size:.72rem;color:var(--muted);letter-spacing:.04em;margin-bottom:6px;font-variant-numeric:tabular-nums}
+.card h3{font-size:1.5rem;line-height:1.1}
+.card .tr{color:var(--muted);margin-top:4px}
+
+.player{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;background:var(--bg);border-radius:12px;padding:10px 14px 10px 10px}
+.play{width:44px;height:44px;border-radius:50%;border:0;background:var(--sea);color:var(--sea-ink);display:grid;place-items:center;cursor:pointer;flex:none}
+.play svg{width:18px;height:18px;fill:currentColor}
+.stop.playing .play{background:var(--cay);color:#fff}
+.track{height:6px;border-radius:99px;background:var(--line);position:relative;cursor:pointer;min-width:0}
+.track i{position:absolute;inset:0 auto 0 0;width:0;border-radius:inherit;background:var(--cay)}
+.time{font-family:var(--f-mono);font-size:.75rem;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+
+.look h4{margin:0 0 6px;font-family:var(--f-mono);font-weight:600;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.look ul{margin:0;padding-left:1.1em;display:grid;gap:4px}
+.look li::marker{color:var(--cay)}
+.tip{background:var(--cay-soft);border-radius:10px;padding:10px 14px;font-size:.92rem}
+.tip b{color:var(--cay)}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:inherit;font-size:.86rem;font-weight:500;display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);text-decoration:none;cursor:pointer}
+.btn:hover{border-color:var(--sea)}
+.btn.check[aria-pressed="true"]{background:var(--ok);border-color:var(--ok);color:var(--surface)}
+details.script summary{cursor:pointer;font-size:.86rem;color:var(--muted)}
+details.script p{margin:.6em 0 0;font-size:.95rem;max-width:65ch}
+
+/* Practical */
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:14px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;min-width:0}
+.panel h3{font-size:1.25rem;margin-bottom:10px}
+.panel dl{margin:0;display:grid;gap:10px}
+.panel dt{font-weight:600}
+.panel dd{margin:0;color:var(--muted);font-size:.92rem}
+.phr{display:grid;grid-template-columns:1fr auto;gap:2px 14px;font-size:.93rem}
+.phr .t{font-weight:600}
+.phr .p{font-family:var(--f-mono);font-size:.75rem;color:var(--muted)}
+.phr .e{grid-column:2;grid-row:span 2;align-self:center;color:var(--muted);text-align:right}
+.phr > div{display:contents}
+.phr hr{grid-column:1/-1;border:0;border-top:1px solid var(--line);margin:6px 0;width:100%}
+footer{color:var(--muted);font-size:.8rem;margin-block:30px 10px}
+
+/* Dock */
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:20;background:color-mix(in srgb, var(--surface) 94%, transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--line);padding-bottom:max(10px, env(safe-area-inset-bottom, 0px));padding-top:10px}
+.dock .wrap{display:grid;grid-template-columns:auto auto auto 1fr;gap:10px;align-items:center}
+.dock .ib{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);display:grid;place-items:center;cursor:pointer}
+.dock .ib svg{width:16px;height:16px;fill:currentColor}
+.dock .ib.main{width:46px;height:46px;background:var(--sea);border-color:var(--sea);color:var(--sea-ink)}
+.dock .meta{min-width:0}
+.dock .meta b{display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.95rem}
+.dock .meta span{font-family:var(--f-mono);font-size:.72rem;color:var(--muted)}
+.dock .mini{height:3px;background:var(--line);border-radius:3px;margin-top:6px;overflow:hidden}
+.dock .mini i{display:block;height:100%;width:0;background:var(--cay)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Estambul · orilla asiática · audioguía</div>
+    <h1>Kadıköy <em>&amp;</em> Moda<br>a pie</h1>
+    <p>Del muelle de ferris hasta la punta de Moda: mercado, iglesias, un toro viajero, una ópera que esperó 80 años y el mejor atardecer de la ciudad. Pulsa play en cada parada al llegar.</p>
+    <div class="route-line"><span>Kadıköy İskelesi</span><i></i><span>Moda Burnu</span></div>
+    <div class="ticket" aria-label="Datos de la ruta">
+      <div><span>Paradas</span><b>11 + 1</b></div>
+      <div><span>Distancia</span><b>≈ 3 km</b></div>
+      <div><span>A pie</span><b>2½–3 h</b></div>
+      <div><span>Audio</span><b id="totalAudio">—</b></div>
+    </div>
+  </div>
+  <div class="stripe" aria-hidden="true"></div>
+</header>
+
+<main class="wrap">
+  <div class="notices">
+    <div class="notice today"><span class="tag">Hoy · 4 nov</span><p><strong>Fenerbahçe – Liverpool a las 20:45</strong> en el estadio de Kadıköy. Desde media tarde habrá mucha gente y policía por el centro, y los ferris de vuelta irán llenos después del partido. Si hacéis la ruta hoy, empezad pronto.</p></div>
+    <div class="notice"><span class="tag">Transporte</span><p>El tranvía histórico Kadıköy–Moda está parado por obras desde octubre. Mientras tanto hay minibuses eléctricos por el mismo recorrido.</p></div>
+  </div>
+
+  <section aria-labelledby="h-map">
+    <div class="sec-head"><h2 id="h-map">La ruta</h2><div class="progress" style="min-width:200px;flex:1;max-width:280px"><span id="doneTxt">0 de 11</span><div class="bar"><i id="doneBar"></i></div></div></div>
+    <div class="map"><svg id="map" viewBox="0 0 340 400" role="img" aria-label="Esquema de la ruta"></svg>
+      <p class="note">Esquema orientativo, no a escala. Toca una parada para ir a ella. Usa «Cómo llegar» en cada parada para el mapa real.</p></div>
+  </section>
+
+  <section aria-labelledby="h-stops">
+    <div class="sec-head"><h2 id="h-stops">Paradas</h2><span class="eyebrow">Marca cada una al terminar</span></div>
+    <ol class="stops" id="stops"></ol>
+  </section>
+
+  <section aria-labelledby="h-info">
+    <div class="sec-head"><h2 id="h-info">Para el grupo</h2></div>
+    <div class="grid2">
+      <div class="panel">
+        <h3>Dónde comer y picar</h3>
+        <dl>
+          <dt>Çiya Sofrası</dt><dd>Güneşlibahçe Sokak. Cocina de toda Anatolia; pedid varios platos para compartir.</dd>
+          <dt>Mercado de Kadıköy</dt><dd>Midye dolma, bocadillo de pescado, turşu, börek. Para ir picando por el camino.</dd>
+          <dt>Baylan</dt><dd>Pastelería clásica de 1961. El postre de la casa es el Kup Griye.</dd>
+          <dt>Ali Usta</dt><dd>Helado al estilo de Maraş en Moda Caddesi.</dd>
+          <dt>Jardines de té de Moda</dt><dd>Çay y simit frente al mar para cerrar la ruta al atardecer.</dd>
+        </dl>
+      </div>
+      <div class="panel">
+        <h3>Cuatro frases</h3>
+        <div class="phr">
+          <div><span class="t">Merhaba</span><span class="e">Hola</span><span class="p">merjabá</span></div><hr>
+          <div><span class="t">Teşekkürler</span><span class="e">Gracias</span><span class="p">teshekkurlér</span></div><hr>
+          <div><span class="t">Bir çay, lütfen</span><span class="e">Un té, por favor</span><span class="p">bir chai, lutfén</span></div><hr>
+          <div><span class="t">Hesap, lütfen</span><span class="e">La cuenta, por favor</span><span class="p">jesáp, lutfén</span></div><hr>
+          <div><span class="t">Ne kadar?</span><span class="e">¿Cuánto cuesta?</span><span class="p">ne kadár</span></div>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>Cómo llegar</h3>
+        <dl>
+          <dt>En ferry</dt><dd>Desde Eminönü, Karaköy o Beşiktaş hasta Kadıköy, unos 20–25 minutos. Pagad con la Istanbulkart.</dd>
+          <dt>En Marmaray</dt><dd>El tren bajo el Bósforo para en Ayrılık Çeşmesi; desde ahí, metro M4 una parada hasta Kadıköy.</dd>
+          <dt>Vuelta desde Moda</dt><dd>A pie al muelle de Kadıköy, unos 20 minutos, o en los minibuses eléctricos.</dd>
+        </dl>
+      </div>
+      <div class="panel">
+        <h3>Antes de salir</h3>
+        <dl>
+          <dt>Auriculares</dt><dd>Mejor uno por persona, o un móvil con altavoz por grupo.</dd>
+          <dt>Iglesias</dt><dd>Hombros cubiertos y en silencio. Son templos en uso.</dd>
+          <dt>Atardecer</dt><dd>A principios de noviembre, poco después de las cinco. Planificad para llegar a la punta de Moda antes.</dd>
+          <dt>Calzado</dt><dd>Hay cuestas y adoquines en Moda.</dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+  <footer>Audioguía preparada para el viaje del grupo, del 2 al 9 de noviembre de 2026. Las paradas marcadas se guardan solo en tu móvil.</footer>
+</main>
+
+<div class="dock" role="region" aria-label="Reproductor">
+  <div class="wrap">
+    <button class="ib" id="prev" aria-label="Parada anterior"><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button>
+    <button class="ib main" id="dockPlay" aria-label="Reproducir"><svg viewBox="0 0 24 24" id="dockIcon"><path d="M7 4v16l13-8z"/></svg></button>
+    <button class="ib" id="next" aria-label="Parada siguiente"><svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button>
+    <div class="meta"><b id="dockName">1 · Muelle de Kadıköy</b><span id="dockTime">Pulsa play para empezar</span><div class="mini"><i id="dockBar"></i></div></div>
+  </div>
+</div>
+<audio id="audio" preload="none"></audio>
+
+<script>
+const STOPS = [{"id": "iskele", "name": "Muelle de Kadıköy", "tr": "Kadıköy İskelesi", "walk": "Inicio", "maps": "Kadıköy İskelesi", "x": 0.34, "y": 0.1, "look": ["Los ferris que llegan desde Eminönü y Karaköy", "Al norte, la estación de Haydarpaşa con sus tejados en punta", "Las gaviotas y los vendedores de simit en el muelle"], "tip": "Paga el ferry con la Istanbulkart: es más barato que el billete suelto y sirve para metro, tranvía y autobús.", "text": "Bienvenidos a Kadıköy, en la orilla asiática de Estambul. Acabáis de cruzar de continente en veinte minutos de ferry.\n\nEste barrio es mucho más antiguo que la propia Estambul. Aquí estaba Calcedonia, una colonia griega fundada por gente de Megara. Cuenta la leyenda que, años después, otro griego llamado Bízas preguntó al oráculo de Delfos dónde fundar su ciudad, y el oráculo le respondió: enfrente de la tierra de los ciegos. Al llegar aquí y ver la otra orilla, con su puerto natural, entendió que los de Calcedonia habían sido unos ciegos por no elegirla. Allí fundó Bizancio, que luego sería Constantinopla y hoy Estambul. Por eso a Kadıköy todavía se le llama, medio en broma, el país de los ciegos.\n\nSi miráis hacia el norte, veréis el edificio con aspecto de castillo: la estación de Haydarpaşa, inaugurada en mil novecientos ocho y diseñada por arquitectos alemanes como cabecera del ferrocarril hacia Anatolia y Bagdad. Ahora está en restauración para convertirse en centro cultural.\n\nHoy Kadıköy es el barrio con más vida de la parte asiática: mercados, cafés, librerías, bares y mucha gente joven. Empezamos la ruta. Cruzad la avenida por el paso subterráneo y entrad hacia el mercado.", "dur": 70, "file": "audio/iskele.mp3"}, {"id": "efimia", "name": "Iglesia de Santa Eufemia", "tr": "Aya Efimia Rum Ortodoks Kilisesi", "walk": "4 min", "maps": "Aya Efimia Kilisesi Kadıköy", "x": 0.27, "y": 0.27, "look": ["La puerta discreta entre los puestos del mercado", "El patio interior y los iconos ortodoxos", "Las velas que encienden los fieles al entrar"], "tip": "Es una iglesia en uso: entrad en silencio, sin gorra y con los hombros cubiertos.", "text": "Escondida entre los puestos del mercado está esta pequeña iglesia ortodoxa griega, dedicada a Santa Eufemia, una joven cristiana de Calcedonia que murió mártir a comienzos del siglo cuarto por negarse a adorar a los dioses paganos.\n\nSu nombre tiene mucho peso en la historia. En el año cuatrocientos cincuenta y uno se celebró aquí, en Calcedonia, uno de los concilios más importantes del cristianismo, y se reunió precisamente en la gran basílica dedicada a Santa Eufemia. Ese concilio fijó la idea de que Cristo tiene dos naturalezas, divina y humana, y su decisión acabó separando a varias iglesias de Oriente que todavía hoy siguen caminos distintos. La basílica original desapareció hace siglos, pero el recuerdo de la santa sigue en esta iglesia.\n\nTambién os habla de cómo era Kadıköy hace no tanto: un barrio donde convivían griegos, armenios, judíos, levantinos y turcos. A pocas calles hay también una iglesia armenia, y más adelante veréis las casas de las familias levantinas de Moda.\n\nSalid de nuevo al mercado. La siguiente parada está a la vuelta de la esquina.", "dur": 62, "file": "audio/efimia.mp3"}, {"id": "carsi", "name": "Mercado de Kadıköy", "tr": "Kadıköy Çarşısı · Güneşlibahçe Sokak", "walk": "2 min", "maps": "Güneşlibahçe Sokak Kadıköy", "x": 0.4, "y": 0.3, "look": ["Los puestos de pescado con las agallas rojas a la vista", "Las tiendas de encurtidos, con tarros de colores", "Quesos, aceitunas, especias y frutos secos al peso"], "tip": "Para comer: Çiya Sofrası, en esta misma calle, es cocina tradicional de Anatolia. Pedid varios platos al centro.", "text": "Esto es el mercado de Kadıköy, y la calle principal es Güneşlibahçe. Aquí compran los vecinos de verdad, no es un mercado para turistas.\n\nFijaos en el pescado: los puestos dejan las agallas abiertas y bien rojas para demostrar que es fresco. En otoño es temporada de bonito y de hamsi, la anchoa del mar Negro, y veréis bocadillos de pescado a la plancha por toda la zona.\n\nLas tiendas con tarros de colores son de turşu, encurtidos. Pepino, col, zanahoria, guindilla. Muchos venden también el caldo del encurtido para beber en vaso. Es fuerte y salado; probadlo al menos una vez.\n\nMás cosas para picar: midye dolma, mejillones rellenos de arroz con especias que se comen con un chorro de limón, y kokoreç, un bocadillo de tripas de cordero a la plancha. Si no os atrevéis, siempre hay börek, simit y baklava.\n\nSi queréis comer sentados, en esta calle está Çiya Sofrası, un restaurante muy conocido del cocinero Musa Dağdeviren, que se dedica a recuperar recetas de toda Anatolia: guisos, kebabs, verduras rellenas y postres que no veréis en otros sitios.\n\nSeguid hacia el interior del barrio. Vamos a una galería de libros y discos.", "dur": 66, "file": "audio/carsi.mp3"}, {"id": "akmar", "name": "Pasaje Akmar", "tr": "Akmar Pasajı", "walk": "4 min", "maps": "Akmar Pasajı Kadıköy", "x": 0.52, "y": 0.27, "look": ["Librerías de segunda mano apiladas hasta el techo", "Vinilos de rock turco de los setenta", "Cómics, fanzines y carteles antiguos"], "tip": "Un vinilo de rock anatolio es un buen recuerdo y ocupa poco en la maleta.", "text": "El pasaje Akmar es una galería estrecha llena de librerías de segunda mano, tiendas de discos, cómics y revistas antiguas.\n\nEs un buen resumen del carácter de Kadıköy. Este lado de la ciudad tiene fama de ser el más universitario, cultural y alternativo de Estambul. Aquí hay salas de conciertos, teatros pequeños, cines y mucha escena musical.\n\nSi os gusta la música, buscad vinilos de rock anatolio de los años sesenta y setenta. Es una mezcla de rock psicodélico con instrumentos y melodías turcas, y artistas como Barış Manço, que vivió en Moda y del que hablaremos más tarde, fueron grandes figuras de ese estilo.\n\nNo hace falta comprar nada: dad una vuelta, curiosead y salid por el otro extremo. La siguiente parada es el símbolo del barrio: un toro.", "dur": 44, "file": "audio/akmar.mp3"}, {"id": "boga", "name": "El Toro de Kadıköy", "tr": "Boğa Heykeli · Altıyol", "walk": "2 min", "maps": "Kadıköy Boğa Heykeli Altıyol", "x": 0.62, "y": 0.33, "look": ["La firma del escultor y la fecha 1864 en el bronce", "La plaza de seis calles que le da nombre: Altıyol", "Gente quedando aquí para verse"], "tip": "Desde aquí, el estadio del Fenerbahçe queda a unos 10 minutos a pie. Mirad la parada extra al final.", "text": "Este es el toro de Kadıköy, en la plaza de Altıyol, que significa seis caminos. Para los vecinos es el punto de encuentro por excelencia: quedar en el toro es como quedar en el oso y el madroño en Madrid.\n\nEl toro tiene más viajes que nosotros. Es una escultura de bronce francesa, firmada por el escultor Isidore Bonheur en mil ochocientos sesenta y cuatro. Hay dos versiones sobre cómo llegó a Estambul: una dice que la encargó el sultán Abdülaziz, y otra que fue un regalo de Alemania al militar otomano Enver Pachá en mil novecientos diecisiete.\n\nLo que sí se sabe es que estuvo en palacios, en una granja privada en los bosques de Belgrado, en el patio de un instituto, delante de un palacio de congresos y hasta en la entrada del hotel Hilton. En mil novecientos ochenta y siete llegó por fin a esta plaza. Años después, Patrimonio Nacional pidió que volviera a un palacio, pero el ayuntamiento de Kadıköy se negó, y en dos mil dieciocho se decidió que este sería su sitio definitivo.\n\nHaceos la foto de grupo aquí. Después, tomad la calle peatonal Bahariye, en dirección sur.", "dur": 61, "file": "audio/boga.mp3"}, {"id": "opera", "name": "Calle Bahariye y Ópera Süreyya", "tr": "Bahariye Caddesi · Süreyya Operası", "walk": "3 min", "maps": "Süreyya Operası Kadıköy", "x": 0.66, "y": 0.47, "look": ["La fachada de la ópera, con aire de teatro parisino", "Las tiendas, cafés y librerías de Bahariye", "Los músicos callejeros los fines de semana"], "tip": "Si os apetece un plan de noche, mirad la cartelera de la ópera: las entradas suelen ser bastante asequibles.", "text": "Estamos en la calle Bahariye, una de las más animadas del barrio, y delante tenéis la Ópera Süreyya.\n\nLa mandó construir Süreyya Paşa, un diputado de Estambul que viajaba mucho y quería traer a este lado de la ciudad un teatro como los que veía en Europa. Las obras empezaron en mil novecientos veinticuatro y se inauguró en mil novecientos veintisiete. Dicen que la entrada y el vestíbulo se inspiraron en el Teatro de los Campos Elíseos de París.\n\nPero hubo un problema: el escenario nunca se terminó del todo, así que durante décadas el edificio funcionó como cine. Después se usó para comercios, y llegó a tener hasta un taller de sastrería dentro, que dañó las pinturas originales.\n\nEn dos mil cinco el ayuntamiento de Kadıköy lo alquiló y lo restauró a fondo. En octubre de dos mil siete reabrió por fin como lo que siempre quiso ser: un teatro de ópera. Ochenta años de espera.\n\nSeguid un poco más por Bahariye y girad hacia la calle Kadife, la calle de los bares.", "dur": 55, "file": "audio/opera.mp3"}, {"id": "kadife", "name": "Calle Kadife", "tr": "Kadife Sokak · Barlar Sokağı", "walk": "4 min", "maps": "Kadife Sokak Kadıköy", "x": 0.55, "y": 0.55, "look": ["Las casas antiguas de madera y piedra convertidas en bares", "Los murales y grafitis de las fachadas", "Por la noche: música en directo y terrazas llenas"], "tip": "De día está tranquila. Si os gusta, volved por la noche para tomar algo.", "text": "Esta es la calle Kadife, aunque todo el mundo la llama Barlar Sokağı, la calle de los bares.\n\nDe día parece una calle residencial normal, con casas antiguas de dos o tres plantas. De noche cambia por completo: casi cada portal es un bar, con música rock, electrónica o música en directo, cerveza artesana y mucha gente joven en la calle.\n\nEs un buen sitio para entender una cosa de Kadıköy: este barrio es, para muchos turcos, sinónimo de libertad y de ambiente desenfadado. Aquí vienen estudiantes, músicos y artistas de toda la ciudad.\n\nSi queréis una noche de copas tranquila y local, este es vuestro sitio. Volved más tarde. Ahora bajamos hacia Moda, el barrio junto al mar.", "dur": 39, "file": "audio/kadife.mp3"}, {"id": "baylan", "name": "Pastelería Baylan", "tr": "Baylan Pastanesi · Muvakkithane Caddesi", "walk": "5 min", "maps": "Baylan Pastanesi Kadıköy", "x": 0.44, "y": 0.62, "look": ["El letrero y el mostrador de estilo antiguo", "El jardín interior", "El Kup Griye en la carta"], "tip": "Pedid un Kup Griye para compartir y un café turco.", "text": "Esta es la pastelería Baylan, una institución en Kadıköy. Abrió aquí en mil novecientos sesenta y uno, y mantiene ese ambiente de pastelería clásica que ya cuesta encontrar.\n\nSu postre más famoso es el Kup Griye: una copa de helado con crema de caramelo, almendras y nata. Es un postre de los que los mayores del barrio recuerdan de su infancia, y por eso tiene algo de nostálgico.\n\nSi preferís algo más turco, pedid un café turco. Se sirve sin filtrar, con el poso en el fondo de la taza, así que no os lo bebáis hasta el final. Y lo acompañan casi siempre con un vasito de agua y un trozo de lokum, la delicia turca.\n\nA partir de aquí empieza Moda. Fijaos en cómo cambian las calles: más tranquilas, más arboladas y con casas más señoriales.", "dur": 44, "file": "audio/baylan.mp3"}, {"id": "moda", "name": "Calle Moda", "tr": "Moda Caddesi", "walk": "6 min", "maps": "Dondurmacı Ali Usta Moda", "x": 0.38, "y": 0.75, "look": ["Las casas levantinas con miradores y jardines", "La heladería Ali Usta, con cola a cualquier hora", "Los cafés de barrio con mesas en la acera"], "tip": "Ali Usta tiene muchísimos sabores. Pedid probar antes de elegir.", "text": "Bienvenidos a Moda. En el siglo diecinueve esta península era una zona de veraneo y de casas elegantes, donde vivían muchas familias levantinas, es decir, comerciantes europeos asentados en el Imperio otomano. Entre ellas, la familia inglesa Whittall, una de las más conocidas. También vivían aquí muchas familias griegas y armenias.\n\nEsa mezcla se nota todavía en las casas, con miradores, jardines y fachadas que recuerdan más a una ciudad europea que a la Estambul de las postales.\n\nEn Moda vivió también Barış Manço, el cantante del que os hablé en el pasaje Akmar. Fue una estrella enorme en Turquía, mezcla de rock y música tradicional, y su casa en este barrio es hoy un museo.\n\nY una parada obligada de la calle: Ali Usta, una heladería muy popular con helado al estilo de Maraş, más elástico y denso que el italiano. Siempre hay cola, pero va rápido.\n\nSeguid bajando hacia el mar. El muelle de Moda está a pocos minutos.", "dur": 56, "file": "audio/moda.mp3"}, {"id": "modaiskele", "name": "Muelle de Moda", "tr": "Moda İskelesi", "walk": "6 min", "maps": "Moda İskelesi", "x": 0.22, "y": 0.86, "look": ["El edificio blanco del muelle, de 1917", "Al otro lado del agua: el perfil de la península histórica", "Los pescadores con caña en el paseo"], "tip": "En el muelle hay un café: buen sitio para descansar las piernas con vistas.", "text": "Este es el muelle de Moda, construido en mil novecientos diecisiete y restaurado hace pocos años. Hoy funciona como café, con una pequeña biblioteca y vistas al agua.\n\nMirad al frente, al otro lado del mar. Lo que se ve en el horizonte es la península histórica de Estambul, la parte vieja de la ciudad. Con buena visibilidad se distinguen las cúpulas y minaretes de Santa Sofía, la Mezquita Azul y el palacio de Topkapı.\n\nPensad que, para los que vivían aquí, esa era la vista diaria: la capital del imperio al otro lado del agua.\n\nHacia el sur, a la izquierda, en los días claros se ven las Islas de los Príncipes, un archipiélago sin coches al que se puede ir en ferry. Si os sobra un día, es una buena excursión.\n\nCaminad por el paseo hacia la punta de Moda. Es la última parada, y el mejor sitio para ver atardecer.", "dur": 46, "file": "audio/modaiskele.mp3"}, {"id": "burnu", "name": "Punta de Moda", "tr": "Moda Burnu · Moda Sahili", "walk": "5 min", "maps": "Moda Burnu Kadıköy", "x": 0.35, "y": 0.94, "look": ["El atardecer sobre la península histórica", "Los jardines de té con vistas al mar", "Gente sentada en las rocas con çay y pipas"], "tip": "A principios de noviembre el sol se pone poco después de las cinco. Llegad un poco antes para coger sitio.", "text": "Hemos llegado a la punta de Moda, y no hay mejor final para la ruta. Aquí los vecinos vienen a sentarse en las rocas o en los jardines de té para ver cómo el sol se pone detrás de la península histórica.\n\nEs el momento perfecto para un çay. El té turco se toma en vasos pequeños con forma de tulipán, sin leche y con terrones de azúcar al gusto. Se sirve muy caliente: agarrad el vaso por el borde de arriba para no quemaros. Lo normal es pedir uno detrás de otro sin prisa. Y si queréis algo para acompañar, un simit, el pan con sésamo que habréis visto por todas partes.\n\nUn par de palabras útiles: bir çay, lütfen, un té por favor. Y teşekkürler, gracias.\n\nPara volver, podéis deshacer el camino a pie hasta el muelle de Kadıköy, unos veinte minutos, o coger uno de los minibuses eléctricos que conectan Moda con el centro.\n\nGracias por hacer esta ruta. Disfrutad de Estambul.", "dur": 50, "file": "audio/burnu.mp3"}, {"id": "fener", "name": "Estadio del Fenerbahçe", "tr": "Chobani Stadyumu · Şükrü Saracoğlu", "walk": "Extra · 10 min desde el Toro", "maps": "Şükrü Saracoğlu Stadyumu", "extra": true, "x": 0.9, "y": 0.4, "look": ["La tienda oficial del club", "El fondo amarillo y azul marino del estadio", "El ambiente en los alrededores en día de partido"], "tip": "Hoy, miércoles 4 de noviembre, el Fenerbahçe juega contra el Liverpool a las 20:45. El barrio se llenará desde la tarde.", "text": "Esta es una parada extra para los futboleros. A unos diez minutos del toro está el estadio del Fenerbahçe, hoy llamado Chobani Stadyumu Şükrü Saracoğlu.\n\nEl Fenerbahçe nació aquí, en Kadıköy, en mil novecientos siete, y es uno de los tres grandes del fútbol turco junto al Galatasaray y el Beşiktaş. Su nombre viene de la punta de Fenerbahçe, un cabo cercano con un faro: fener significa faro.\n\nEl estadio está en el lugar del antiguo Papazın Çayırı, el prado del cura, uno de los primeros campos donde se jugó al fútbol en la ciudad. El nombre de Şükrü Saracoğlu recuerda a un antiguo presidente del club que también fue primer ministro de Turquía.\n\nSi os coincide un partido, el ambiente es espectacular: es uno de los estadios más ruidosos de Europa. Y aunque no haya partido, la tienda oficial y el exterior merecen una visita. Los colores son el amarillo y el azul marino, así que cuidado con lo que lleváis puesto si cruzáis luego a otros barrios.", "dur": 54, "file": "audio/fener.mp3"}];
+const PLAY='<path d="M7 4v16l13-8z"/>', PAUSE='<path d="M6 4h4v16H6zM14 4h4v16h-4z"/>';
+const audio=document.getElementById('audio');
+let cur=0;
+const KEY='kdk-moda-done';
+let done=new Set();
+try{done=new Set(JSON.parse(localStorage.getItem(KEY)||'[]'))}catch(e){}
+const saveDone=()=>{try{localStorage.setItem(KEY,JSON.stringify([...done]))}catch(e){}};
+const fmt=s=>{s=Math.max(0,Math.round(s||0));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
+const mainCount=STOPS.filter(s=>!s.extra).length;
+const label=(s,i)=>s.extra?'Extra':String(i+1);
+const esc=t=>t.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+document.getElementById('totalAudio').textContent=Math.round(STOPS.reduce((a,s)=>a+s.dur,0)/60)+' min';
+
+// Stops
+const ol=document.getElementById('stops');
+STOPS.forEach((s,i)=>{
+  const li=document.createElement('li');
+  li.className='stop'+(s.extra?' extra':'');li.id='p-'+s.id;
+  const maps='https://www.google.com/maps/dir/?api=1&travelmode=walking&destination='+encodeURIComponent(s.maps);
+  li.innerHTML=`<div class="num" aria-hidden="true">${label(s,i)}</div>
+  <article class="card">
+    <div><div class="walk">${s.walk==='Inicio'?'PUNTO DE SALIDA':(s.extra?s.walk.toUpperCase():'↓ '+s.walk+' A PIE DESDE LA ANTERIOR')}</div>
+    <h3>${esc(s.name)}</h3><div class="tr mono">${esc(s.tr)}</div></div>
+    <div class="player">
+      <button class="play" data-i="${i}" aria-label="Escuchar ${esc(s.name)}"><svg viewBox="0 0 24 24">${PLAY}</svg></button>
+      <div class="track" data-i="${i}" role="slider" aria-label="Posición del audio" tabindex="0"><i></i></div>
+      <span class="time">${fmt(s.dur)}</span>
+    </div>
+    <div class="look"><h4>Qué mirar</h4><ul>${s.look.map(l=>'<li>'+esc(l)+'</li>').join('')}</ul></div>
+    <div class="tip"><b>Consejo · </b>${esc(s.tip)}</div>
+    <div class="actions">
+      <a class="btn" href="${maps}" target="_blank" rel="noopener">Cómo llegar ↗</a>
+      <button class="btn check" data-i="${i}" aria-pressed="false">✓ Hecho</button>
+    </div>
+    <details class="script"><summary>Leer el texto del audio</summary>${s.text.split('\n\n').map(p=>'<p>'+esc(p)+'</p>').join('')}</details>
+  </article>`;
+  ol.appendChild(li);
+});
+
+// Map
+const svg=document.getElementById('map');const W=340,H=400,P=26;
+const X=x=>P+x*(W-2*P), Y=y=>P+y*(H-2*P);
+const water=`M0 0 H${X(.58)} C${X(.52)} ${Y(.02)} ${X(.40)} ${Y(.05)} ${X(.30)} ${Y(.07)} C${X(.20)} ${Y(.12)} ${X(.20)} ${Y(.24)} ${X(.19)} ${Y(.34)} C${X(.16)} ${Y(.52)} ${X(.13)} ${Y(.70)} ${X(.17)} ${Y(.84)} C${X(.22)} ${Y(.96)} ${X(.34)} ${Y(1.0)} ${X(.46)} ${Y(.98)} C${X(.60)} ${Y(.96)} ${X(.75)} ${Y(1.02)} ${W} ${Y(1.03)} V${H} H0 Z`;
+let html=`<path d="${water}" fill="var(--water)"/>
+<text x="${X(.0)}" y="${Y(.55)}" font-family="var(--f-mono)" font-size="9" letter-spacing="2" fill="var(--muted)" transform="rotate(-90 ${X(.0)} ${Y(.55)})" text-anchor="middle">MAR DE MÁRMARA</text>
+<text x="${X(.62)}" y="${Y(.035)}" font-family="var(--f-mono)" font-size="8.5" fill="var(--muted)">↑ HAYDARPAŞA</text>`;
+const main=STOPS.map((s,i)=>[s,i]).filter(([s])=>!s.extra);
+html+=`<polyline points="${main.map(([s])=>X(s.x)+','+Y(s.y)).join(' ')}" fill="none" stroke="var(--sea)" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" opacity=".8"/>`;
+const boga=STOPS.find(s=>s.id==='boga'), fen=STOPS.find(s=>s.extra);
+html+=`<line x1="${X(boga.x)}" y1="${Y(boga.y)}" x2="${X(fen.x)}" y2="${Y(fen.y)}" stroke="var(--cay)" stroke-width="1.8" stroke-dasharray="4 4"/>`;
+const side={iskele:'r',efimia:'l',carsi:'b',akmar:'t',boga:'r',opera:'r',kadife:'b',baylan:'l',moda:'r',modaiskele:'l',burnu:'r',fener:'b'};
+STOPS.forEach((s,i)=>{
+  const x=X(s.x),y=Y(s.y),sd=side[s.id]||'r';
+  const short=s.name.replace('Iglesia de ','').replace('Calle Bahariye y ','').replace('Pastelería ','').replace('Estadio del ','');
+  let tx=x+14,ty=y+4,an='start';
+  if(sd==='l'){tx=x-14;an='end'} if(sd==='b'){tx=x;ty=y+24;an='middle'} if(sd==='t'){tx=x;ty=y-16;an='middle'}
+  html+=`<g class="node${s.extra?' extra':''}" data-i="${i}" tabindex="0" role="button" aria-label="${esc(s.name)}"><circle class="dot" cx="${x}" cy="${y}" r="10"/><text class="n" x="${x}" y="${y}">${s.extra?'+':i+1}</text><text class="lbl" x="${tx}" y="${ty}" text-anchor="${an}">${esc(short)}</text></g>`;
+});
+svg.innerHTML=html;
+svg.querySelectorAll('.node').forEach(n=>{const go=()=>document.getElementById('p-'+STOPS[+n.dataset.i].id).scrollIntoView({block:'start'});n.addEventListener('click',go);n.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}})});
+
+// Done state
+function renderDone(){
+  STOPS.forEach((s,i)=>{const d=done.has(s.id);
+    document.getElementById('p-'+s.id).classList.toggle('done',d);
+    const b=document.querySelector(`.check[data-i="${i}"]`);b.setAttribute('aria-pressed',d);b.textContent=d?'✓ Hecho':'Marcar como hecha';
+    svg.querySelector(`.node[data-i="${i}"]`).classList.toggle('done',d);
+  });
+  const n=STOPS.filter(s=>!s.extra&&done.has(s.id)).length;
+  document.getElementById('doneTxt').textContent=n+' de '+mainCount;
+  document.getElementById('doneBar').style.width=(n/mainCount*100)+'%';
+}
+document.querySelectorAll('.check').forEach(b=>b.addEventListener('click',()=>{const id=STOPS[+b.dataset.i].id;done.has(id)?done.delete(id):done.add(id);saveDone();renderDone()}));
+renderDone();
+
+// Audio
+const blobs={};
+async function src(i){
+  if(blobs[i])return blobs[i];
+  try{const r=await fetch(STOPS[i].file);if(!r.ok)throw 0;blobs[i]=URL.createObjectURL(await r.blob());}
+  catch(e){blobs[i]=STOPS[i].file;}
+  return blobs[i];
+}
+function load(i){cur=i;}
+async function start(i,at){
+  cur=i;setUI();
+  let u=blobs[i];
+  if(!u){document.getElementById('dockTime').textContent='Cargando audio…';u=await src(i);}
+  if(cur!==i)return;
+  if(audio.dataset.i!==String(i)){audio.src=u;audio.dataset.i=i;}
+  if(at!=null){const go=()=>{audio.currentTime=at*(audio.duration||STOPS[i].dur)};audio.readyState>0?go():audio.addEventListener('loadedmetadata',go,{once:true});}
+  audio.play().catch(()=>{document.getElementById('dockTime').textContent='Pulsa play de nuevo para escuchar'});
+}
+function setUI(){
+  const playing=!audio.paused;
+  STOPS.forEach((s,i)=>{const on=i===cur&&playing;
+    document.getElementById('p-'+s.id).classList.toggle('playing',on);
+    document.querySelector(`.play[data-i="${i}"] svg`).innerHTML=on?PAUSE:PLAY;
+    document.querySelector(`.play[data-i="${i}"]`).setAttribute('aria-label',(on?'Pausar ':'Escuchar ')+s.name);
+    svg.querySelector(`.node[data-i="${i}"]`).classList.toggle('playing',i===cur&&playing);
+  });
+  document.getElementById('dockIcon').innerHTML=playing?PAUSE:PLAY;
+  document.getElementById('dockPlay').setAttribute('aria-label',playing?'Pausar':'Reproducir');
+  const s=STOPS[cur];document.getElementById('dockName').textContent=label(s,cur)+' · '+s.name;
+}
+function toggle(i){
+  if(i===cur&&audio.dataset.i===String(i)){audio.paused?audio.play().catch(()=>{}):audio.pause();return}
+  audio.pause();start(i);
+}
+document.querySelectorAll('.play').forEach(b=>b.addEventListener('click',()=>toggle(+b.dataset.i)));
+document.getElementById('dockPlay').addEventListener('click',()=>toggle(cur));
+document.getElementById('prev').addEventListener('click',()=>{const i=Math.max(0,cur-1);toggle(i===cur?cur:i);document.getElementById('p-'+STOPS[cur].id).scrollIntoView({block:'start'})});
+document.getElementById('next').addEventListener('click',()=>{const i=Math.min(STOPS.length-1,cur+1);if(i!==cur)toggle(i);document.getElementById('p-'+STOPS[cur].id).scrollIntoView({block:'start'})});
+['play','pause','ended'].forEach(ev=>audio.addEventListener(ev,setUI));
+audio.addEventListener('ended',()=>{const s=STOPS[cur];if(!done.has(s.id)){done.add(s.id);saveDone();renderDone()}});
+audio.addEventListener('timeupdate',()=>{
+  const d=audio.duration||STOPS[cur].dur,p=audio.currentTime/d*100;
+  const card=document.getElementById('p-'+STOPS[cur].id);
+  card.querySelector('.track i').style.width=p+'%';
+  card.querySelector('.time').textContent=fmt(audio.currentTime)+' / '+fmt(d);
+  document.getElementById('dockBar').style.width=p+'%';
+  document.getElementById('dockTime').textContent=fmt(audio.currentTime)+' / '+fmt(d);
+});
+audio.addEventListener('error',()=>{document.getElementById('dockTime').textContent='No se pudo cargar el audio. Revisa la conexión.'});
+document.querySelectorAll('.track').forEach(t=>{
+  const seek=f=>{const i=+t.dataset.i;
+    if(i===cur&&audio.dataset.i===String(i)&&audio.readyState>0){audio.currentTime=f*(audio.duration||STOPS[i].dur);audio.play().catch(()=>{});}
+    else{audio.pause();start(i,f);}};
+  t.addEventListener('click',e=>{const r=t.getBoundingClientRect();seek(Math.min(1,Math.max(0,(e.clientX-r.left)/r.width)))});
+  t.addEventListener('keydown',e=>{if(+t.dataset.i!==cur)return;if(e.key==='ArrowRight')audio.currentTime+=10;if(e.key==='ArrowLeft')audio.currentTime-=10});
+});
+setUI();
+(async()=>{for(let i=0;i<STOPS.length;i++){await src(i)}})();
+</script>
+
+</body>
+</html>
