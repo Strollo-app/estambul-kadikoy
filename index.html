@@ -997,6 +997,15 @@ details.script p{margin:.8em 0 0;max-width:65ch;color:var(--ink)}
 .nav-meta{font-family:var(--f-mono);font-size:.82rem;font-weight:600;margin-right:auto}
 .mapfab{top:auto;bottom:60px}
 
+/* food on map */
+.fpin{width:26px;height:26px;border-radius:50%;background:#B5621A;border:2px solid #fff;display:grid;place-items:center;color:#fff;box-shadow:0 2px 5px rgba(0,0,0,.3)}
+.fpin .ico{width:14px;height:14px}
+.fpin.gf1{background:#2E7D5A}.fpin.gf2{background:#2D6577}.fpin.gf3{background:#B5621A;border-color:#7FD1A8}
+.fab[aria-pressed="true"]{background:var(--cay);border-color:var(--cay);color:#fff}
+button.go{border:0;background:transparent;cursor:pointer;padding:2px 0;font:inherit;font-size:.78rem;color:var(--sea-2);white-space:nowrap;display:inline-flex;gap:4px;align-items:center}
+.gmaps{display:inline-block;margin-top:8px;font-size:.78rem;color:var(--muted)}
+.place .row{flex-wrap:wrap}
+
 /* Info */
 .timeline{list-style:none;margin:0;padding:0;position:relative}
 .timeline::before{content:"";position:absolute;left:62px;top:6px;bottom:6px;width:2px;background:var(--line)}
@@ -1137,6 +1146,7 @@ details.script p{margin:.8em 0 0;max-width:65ch;color:var(--ink)}
    <div id="map" role="region" aria-label="Mapa de la ruta"></div>
    <div id="schematic"></div>
    <div class="mapfab">
+    <button class="fab" id="foodBtn" aria-label="Mostrar restaurantes" aria-pressed="false"><svg class="ico"><use href="#i-food"/></svg></button>
     <button class="fab" id="fitBtn" aria-label="Ver toda la ruta"><svg class="ico"><use href="#i-route"/></svg></button>
     <button class="fab" id="meBtn" aria-label="Mi ubicación"><svg class="ico"><use href="#i-locate"/></svg></button>
    </div>
@@ -1279,7 +1289,7 @@ function renderRouteChips(){
   $('#routeChips').innerHTML=ROUTES.map(r=>{const n=r.main.filter(s=>done.has(s.id)).length;return `<button class="rchip" data-route="${r.id}" aria-pressed="${r===R}">${ico(r.icon)}<span><b>${esc(r.short)}</b><small>${n}/${r.main.length}</small></span></button>`}).join('');
   $$('[data-route]').forEach(b=>b.onclick=()=>setRoute(b.dataset.route));
 }
-function setRoute(id,keepScroll){R=routeById[id];store.set('kdk-route',id);if(audio.paused&&byId[cur].isIntro)cur=R.intro.id;renderRoute();if(map)drawRoute(true);if(!keepScroll)window.scrollTo(0,0)}
+function setRoute(id,keepScroll){R=routeById[id];store.set('kdk-route',id);if(map&&foodOn)setTimeout(()=>drawFood(),0);if(audio.paused&&byId[cur].isIntro)cur=R.intro.id;renderRoute();if(map)drawRoute(true);if(!keepScroll)window.scrollTo(0,0)}
 function todayISO(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function renderRoute(){
   renderRouteChips();
@@ -1449,8 +1459,9 @@ function initMap(){
   const watch=t=>{t.on('tileload',()=>ok++);t.on('tileerror',()=>{bad++;
     if(!ok&&bad>=4&&!alt){alt=true;bad=0;map.removeLayer(tl);tl=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);watch(tl)}
     else if(!ok&&bad>=4&&alt&&!fell){fell=true;$('#map').style.display='none';schematic()}})};
-  watch(tl);drawRoute(true);if(nav&&nav.route)drawNav();
+  watch(tl);drawRoute(true);if(nav&&nav.route)drawNav();if(foodOn)drawFood();
 }
+$('#foodBtn').onclick=()=>{foodOn=!foodOn;store.set('kdk-foodmap',foodOn);drawFood();if(!foodOn)$('#mapNote').textContent='Toca un número para ver la parada'};
 $('#fitBtn').onclick=()=>map&&map.fitBounds(L.latLngBounds(R.stops.map(s=>[s.lat,s.lng])),{padding:[30,30]});
 $('#meBtn').onclick=()=>{
   if(!navigator.geolocation){$('#mapNote').textContent='Tu navegador no comparte la ubicación';return}
@@ -1503,9 +1514,9 @@ function stepText(st){const t=st.maneuver.type,m=st.maneuver.modifier,n=st.name?
   if(t==='roundabout'||t==='rotary')return `En la rotonda, toma la salida ${st.maneuver.exit||''}${n}`;
   if(m==='straight')return `Sigue todo recto${n}`;if(m)return `Gira ${DIRS[m]||m}${n}`;return `Continúa${n}`}
 function startNav(id){
-  const s=byId[id];if(!s)return;
+  const s=typeof id==='string'?byId[id]:id;if(!s)return;
   if(!navigator.geolocation){alertNav('Este navegador no comparte la ubicación. Usa Google Maps.');return}
-  stopNav(true);nav={id,route:null,steps:[],stepI:0,last:null,fetching:false};
+  stopNav(true);nav={t:s,route:null,steps:[],stepI:0,last:null,fetching:false};
   location.hash='mapa';
   setTimeout(()=>{initMap();showNavPanel('Buscando tu ubicación…','');
     nav.watch=navigator.geolocation.watchPosition(p=>onNavPos(p.coords.latitude,p.coords.longitude),()=>{alertNav('No se pudo obtener tu ubicación. Revisa los permisos o usa Google Maps.')},{enableHighAccuracy:true,maximumAge:3000,timeout:20000});
@@ -1513,7 +1524,7 @@ function startNav(id){
 }
 function alertNav(msg){showNavPanel(msg,'');}
 async function fetchRoute(la,lo){
-  const s=byId[nav.id];nav.fetching=true;
+  const s=nav.t;nav.fetching=true;
   try{const r=await fetch(`https://routing.openstreetmap.de/routed-foot/route/v1/foot/${lo},${la};${s.lng},${s.lat}?overview=full&geometries=geojson&steps=true`);
     const j=await r.json();const rt=j.routes&&j.routes[0];if(!rt)throw 0;
     nav.route=rt.geometry.coordinates.map(c=>[c[1],c[0]]);nav.steps=rt.legs[0].steps;nav.stepI=0;nav.straight=false;
@@ -1526,7 +1537,7 @@ function drawNav(){
 }
 function distToRoute(la,lo){if(!nav.route)return 1e9;let b=1e9;for(const p of nav.route){const d=distM(la,lo,p[0],p[1]);if(d<b)b=d}return b}
 function onNavPos(la,lo){
-  if(!nav)return;const s=byId[nav.id];nav.last=[la,lo];
+  if(!nav)return;const s=nav.t;nav.last=[la,lo];
   if(map){if(!meMarker)meMarker=L.marker([la,lo],{icon:L.divIcon({className:'',html:'<div class="me"></div>',iconSize:[16,16],iconAnchor:[8,8]}),zIndexOffset:1000}).addTo(map);else meMarker.setLatLng([la,lo]);map.setView([la,lo],Math.max(map.getZoom(),17),{animate:true})}
   const left=distM(la,lo,s.lat,s.lng);
   if(left<30){arrived();return}
@@ -1541,17 +1552,59 @@ function onNavPos(la,lo){
 }
 function bearing(a,b,c,d){const y=Math.sin((d-b)*Math.PI/180)*Math.cos(c*Math.PI/180),x=Math.cos(a*Math.PI/180)*Math.sin(c*Math.PI/180)-Math.sin(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.cos((d-b)*Math.PI/180);const g=(Math.atan2(y,x)*180/Math.PI+360)%360;return ['norte','noreste','este','sureste','sur','suroeste','oeste','noroeste'][Math.round(g/45)%8]}
 function arrived(){
-  const s=byId[nav.id];stopNav(true);
-  $('#navPanel').innerHTML=`<div class="nav-top arrived"><div class="nav-ico">${ico('check')}</div><div><small>Has llegado</small><b>${esc(s.name)}</b></div></div><div class="nav-bot"><button class="chip primary" id="navPlay">${ico('play')}Escuchar el audio</button><button class="chip" id="navOpen">Abrir parada</button><button class="chip" id="navClose">Cerrar</button></div>`;
-  $('#navPanel').hidden=false;$('#navPlay').onclick=()=>{location.hash='p-'+s.id;toggle(s.id)};$('#navOpen').onclick=()=>location.hash='p-'+s.id;$('#navClose').onclick=()=>{$('#navPanel').hidden=true};
+  const s=nav.t;stopNav(true);const isStop=!s.place&&byId[s.id];
+  $('#navPanel').innerHTML=`<div class="nav-top arrived"><div class="nav-ico">${ico('check')}</div><div><small>Has llegado</small><b>${esc(s.name)}</b></div></div><div class="nav-bot">${isStop?`<button class="chip primary" id="navPlay">${ico('play')}Escuchar el audio</button><button class="chip" id="navOpen">Abrir parada</button>`:''}<button class="chip" id="navClose">Cerrar</button></div>`;
+  $('#navPanel').hidden=false;if(isStop){$('#navPlay').onclick=()=>{location.hash='p-'+s.id;toggle(s.id)};$('#navOpen').onclick=()=>location.hash='p-'+s.id}$('#navClose').onclick=()=>{$('#navPanel').hidden=true};
 }
 function showNavPanel(instr,meta){
-  const s=nav&&byId[nav.id];if(!s)return;
+  const s=nav&&nav.t;if(!s)return;
   const gm='https://www.google.com/maps/dir/?api=1&travelmode=walking&destination='+encodeURIComponent(s.maps);
   $('#navPanel').innerHTML=`<div class="nav-top"><div class="nav-ico">${ico('walk')}</div><div><small>Hacia ${esc(s.name)}</small><b>${esc(instr)}</b></div></div><div class="nav-bot"><span class="nav-meta">${esc(meta)}</span><a class="chip" href="${gm}" target="_blank" rel="noopener">Google Maps</a><button class="chip" id="navStop">Salir</button></div>`;
   $('#navPanel').hidden=false;$('#navStop').onclick=()=>stopNav();
 }
 function stopNav(keep){if(nav){if(nav.watch!=null)navigator.geolocation.clearWatch(nav.watch);if(nav.line)nav.line.remove()}nav=null;if(!keep)$('#navPanel').hidden=true}
+
+
+/* ---------- RESTAURANTS ON MAP ---------- */
+const AT={"Mercado de Kadıköy": "carsi", "Calle Kadife": "kadife", "Baylan": "baylan", "Ali Usta": "moda", "Jardín de té de Moda": "burnu", "Barcos de balık ekmek": "eminonu", "Karaköy Güllüoğlu": "karakoy", "Mercado de pescado de Karaköy": "karakoy", "Calle İstiklal": "tunel", "Bazar de las Especias": "especias", "Küff Yeldeğirmeni": "yeldegirmeni"};
+let geo=store.get('kdk-geo',{});const saveGeo=()=>store.set('kdk-geo',geo);
+const ZBOX={kadikoy:'29.010,41.000,29.045,40.975',sultan:'28.965,41.016,28.990,41.000',bazar:'28.955,41.022,28.985,41.005',galata:'28.965,41.033,28.990,41.016'};
+const ZCENTER={kadikoy:[40.988,29.027],sultan:[41.008,28.978],bazar:[41.014,28.968],galata:[41.025,28.975]};
+function eateries(z){const m=new Map();PLACES.filter(p=>p.zone===z).forEach(p=>m.set(p.q,{n:p.n,q:p.q,d:p.d,z:p.z,gf:p.gf?2:0,zone:p.zone}));GF.filter(p=>p.zone===z).forEach(p=>{const e=m.get(p.q);if(e)e.gf=p.l;else m.set(p.q,{n:p.n,q:p.q,d:p.d,z:p.z,gf:p.l,zone:p.zone})});return [...m.values()]}
+function knownLL(e){if(AT[e.n]&&byId[AT[e.n]]){const s=byId[AT[e.n]];const k=e.n.length%5;return [s.lat+0.00012*(k-2),s.lng+0.00015*(k-2)]}return geo[e.q]}
+async function geocode(e){
+  const ctl=new AbortController();const to=setTimeout(()=>ctl.abort(),6000);
+  try{const r=await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&accept-language=es&bounded=1&viewbox=${ZBOX[e.zone]}&q=${encodeURIComponent(e.q)}`,{signal:ctl.signal});
+    clearTimeout(to);if(!r.ok)return null;const j=await r.json();geo[e.q]=j[0]?[+j[0].lat,+j[0].lon]:null;saveGeo();return geo[e.q]}catch(err){clearTimeout(to);return undefined}
+}
+let foodLayer=null,foodOn=store.get('kdk-foodmap',false),foodMarkers={},foodRun=0;
+function addFood(e,ll,focusQ){
+  const m=L.marker(ll,{icon:L.divIcon({className:'',html:`<div class="fpin${e.gf?' gf gf'+e.gf:''}">${ico('food')}</div>`,iconSize:[26,26],iconAnchor:[13,13],popupAnchor:[0,-12]})}).addTo(foodLayer);
+  const gfT=e.gf===1?'100 % sin gluten':e.gf===2?'Opciones sin gluten':e.gf===3?'Sin gluten con precaución':'';
+  m.bindPopup(`<b>${esc(e.n)}</b><span style="color:var(--muted);font-size:.78rem">${esc(e.z)}</span>${gfT?`<br><span class="gflevel l${e.gf}" style="margin-top:6px">${gfT}</span>`:''}<p style="margin:6px 0 0;font-size:.82rem">${esc(e.d)}</p><button class="popbtn" data-gofood="1">Llevarme</button>`);
+  m.on('popupopen',ev=>{const b=ev.popup.getElement().querySelector('[data-gofood]');b&&(b.onclick=()=>{map.closePopup();startNav({name:e.n,lat:ll[0],lng:ll[1],maps:e.q,place:true})})});
+  foodMarkers[e.q]=m;if(focusQ===e.q){map.setView(ll,17);m.openPopup()}
+}
+async function drawFood(focusQ){
+  if(!map)return;const run=++foodRun;if(foodLayer){foodLayer.remove();foodLayer=null}foodMarkers={};
+  $('#foodBtn').setAttribute('aria-pressed',foodOn);
+  if(!foodOn)return;
+  foodLayer=L.layerGroup().addTo(map);const z=R.id;const list=eateries(z);let shown=0,miss=0;const todo=[];
+  list.forEach(e=>{const ll=knownLL(e);if(ll){addFood(e,ll,focusQ);shown++}else if(ll===null)miss++;else todo.push(e)});
+  const note=()=>$('#mapNote').textContent=`${shown} sitios para comer en ${ZONES.find(x=>x[0]===z)[1]}`+(todo.length?' · buscando más…':'')+(miss?` · ${miss} sin ubicación`:'');
+  note();
+  while(todo.length){
+    const e=todo.shift();const ll=await geocode(e);if(run!==foodRun||!foodOn)return;
+    if(ll){addFood(e,ll,focusQ);shown++}else miss++;note();
+    if(ll===undefined){miss+=todo.length;todo.length=0;note();break}
+    await new Promise(r=>setTimeout(r,1100));
+  }
+}
+function showOnMap(q,zone){
+  if(zone&&zone!==R.id)setRoute(zone,true);
+  foodOn=true;store.set('kdk-foodmap',true);location.hash='mapa';
+  setTimeout(()=>{initMap();const m=foodMarkers[q];if(m&&foodLayer){map.setView(m.getLatLng(),17);m.openPopup()}else drawFood(q)},120);
+}
 
 /* ---------- NEARBY ---------- */
 let watchId=null;const nearShown=new Set();
@@ -1605,9 +1658,10 @@ function renderFood(){
   $('#rfilters').innerHTML=RCATS.map(c=>`<button aria-pressed="${c===rcat}" data-rc="${c}">${c}</button>`).join('');
   $$('#rfilters [data-rc]').forEach(b=>b.onclick=()=>{rcat=b.dataset.rc;renderFood()});
   const pl=PLACES.filter(p=>p.zone===zone&&(rcat==='Todo'||p.t.includes(rcat)));
-  $('#places').innerHTML=pl.length?pl.map(p=>`<a class="card place" style="text-decoration:none" href="${mapsQ(p.q)}" target="_blank" rel="noopener"><div class="art" style="background:${grad(p.h)}">${ico(p.i)}</div><div style="min-width:0"><div class="row"><b>${esc(p.n)}</b><span class="go">${ico('pin')}Mapa</span></div><div class="mono" style="font-size:.7rem;color:var(--muted)">${esc(p.z)}</div><p>${esc(p.d)}</p>${p.tags.map(t=>`<span class="tag">${esc(t)}</span>`).join('')}${p.gf?'<span class="tag" style="background:var(--ok-soft);color:var(--ok)">Sin gluten</span>':''}</div></a>`).join(''):`<p class="empty">No hay sitios de este tipo en esta zona. Prueba con «Todo».</p>`;
+  $('#places').innerHTML=pl.length?pl.map(p=>`<div class="card place"><div class="art" style="background:${grad(p.h)}">${ico(p.i)}</div><div style="min-width:0"><div class="row"><b>${esc(p.n)}</b><button class="go" data-onmap="${esc(p.q)}" data-zone="${p.zone}">${ico('map')}Ver en el mapa</button></div><div class="mono" style="font-size:.7rem;color:var(--muted)">${esc(p.z)}</div><p>${esc(p.d)}</p>${p.tags.map(t=>`<span class="tag">${esc(t)}</span>`).join('')}${p.gf?'<span class="tag" style="background:var(--ok-soft);color:var(--ok)">Sin gluten</span>':''}<a class="gmaps" href="${mapsQ(p.q)}" target="_blank" rel="noopener">Abrir en Google Maps ↗</a></div></div>`).join(''):`<p class="empty">No hay sitios de este tipo en esta zona. Prueba con «Todo».</p>`;
   const LVL={1:"100 % sin gluten",2:"Menú sin gluten",3:"Opciones · precaución"};
-  $('#gfplaces').innerHTML=GF.filter(p=>p.zone===zone).map(p=>`<a class="card place${p.far?' far':''}" style="text-decoration:none" href="${mapsQ(p.q)}" target="_blank" rel="noopener"><div class="art" style="background:${p.l===1?'var(--ok)':p.l===2?'var(--sea-2)':'var(--cay)'}">${ico(p.i)}</div><div style="min-width:0"><span class="gflevel l${p.l}">${LVL[p.l]}</span><div class="row"><b>${esc(p.n)}</b><span class="go">${ico('pin')}Mapa</span></div><div class="mono" style="font-size:.7rem;color:var(--muted)">${esc(p.z)}</div><p>${esc(p.d)}</p><p class="note">${esc(p.note)}</p></div></a>`).join('');
+  $('#gfplaces').innerHTML=GF.filter(p=>p.zone===zone).map(p=>`<div class="card place${p.far?' far':''}"><div class="art" style="background:${p.l===1?'var(--ok)':p.l===2?'var(--sea-2)':'var(--cay)'}">${ico(p.i)}</div><div style="min-width:0"><span class="gflevel l${p.l}">${LVL[p.l]}</span><div class="row"><b>${esc(p.n)}</b><button class="go" data-onmap="${esc(p.q)}" data-zone="${p.zone}">${ico('map')}Ver en el mapa</button></div><div class="mono" style="font-size:.7rem;color:var(--muted)">${esc(p.z)}</div><p>${esc(p.d)}</p><p class="note">${esc(p.note)}</p><a class="gmaps" href="${mapsQ(p.q)}" target="_blank" rel="noopener">Abrir en Google Maps ↗</a></div></div>`).join('');
+  $$('[data-onmap]').forEach(b=>b.onclick=()=>showOnMap(b.dataset.onmap,b.dataset.zone));
   $('#gfZoneTitle').textContent='Sin gluten · '+ZONES.find(z=>z[0]===zone)[1];
 }
 const GFD=[["glass","Cerveza","La cerveza turca normal (Efes, Tuborg…) lleva gluten. No hemos encontrado bares con cerveza sin gluten confirmada."],["cup","Mejor opción","Vino, rakı y combinados de destilados (ginebra, vodka, whisky, ron) con refresco. Evitad cócteles con cerveza o mezclas de malta."],["alert","Bares con comida","En bares, mejor no comer frituras: el aceite suele compartirse con rebozados."]];
