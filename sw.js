@@ -1,0 +1,34 @@
+// Service worker: la app y los audios funcionan sin conexión una vez descargados.
+const CACHE = 'kdk-v3';
+
+self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
+
+self.addEventListener('fetch', e => {
+  const req = e.request;
+  if (req.method !== 'GET') return;
+  const url = new URL(req.url);
+  const isPage = req.mode === 'navigate' || url.pathname.endsWith('/') || url.pathname.endsWith('index.html');
+
+  if (isPage) {
+    // Red primero para recibir actualizaciones; caché si no hay conexión.
+    e.respondWith(
+      fetch(req).then(r => {
+        const copy = r.clone();
+        caches.open(CACHE).then(c => c.put('./index.html', copy));
+        return r;
+      }).catch(() => caches.match('./index.html').then(r => r || caches.match('./')))
+    );
+    return;
+  }
+
+  if (url.pathname.includes('/audio/') || url.hostname === 'cdnjs.cloudflare.com' || url.hostname.endsWith('gstatic.com') || url.hostname === 'fonts.googleapis.com') {
+    // Caché primero para audios, librerías y fuentes.
+    e.respondWith(
+      caches.match(req, { ignoreSearch: true }).then(hit => hit || fetch(req).then(r => {
+        if (r.ok || r.type === 'opaque') { const copy = r.clone(); caches.open(CACHE).then(c => c.put(req, copy)); }
+        return r;
+      }))
+    );
+  }
+});
