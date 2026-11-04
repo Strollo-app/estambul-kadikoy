@@ -977,6 +977,26 @@ details.script p{margin:.8em 0 0;max-width:65ch;color:var(--ink)}
 .empty{color:var(--muted);font-size:.9rem;padding:12px 4px}
 @media (max-width:380px){.rchip b{font-size:.68rem}}
 
+/* photos + nav */
+.thumb .ph{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+.thumb .ph~.ico{opacity:0}
+.thumb .n,.thumb .done{z-index:3}
+.cover .ph{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+.cover .ph-shade{position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(0,0,0,.35) 0%,rgba(0,0,0,0) 35%,rgba(0,0,0,.65) 100%)}
+.cover .ph~.ph-shade~.big,.cover .ph~.big{display:none}
+.cover .credit{position:absolute;right:8px;bottom:6px;z-index:3;font-size:.6rem;color:rgba(255,255,255,.85);text-decoration:none;max-width:70%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.navpanel{position:absolute;left:12px;right:12px;top:12px;z-index:600;background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.25);overflow:hidden}
+.navpanel[hidden]{display:none}
+.nav-top{display:grid;grid-template-columns:44px 1fr;gap:12px;align-items:center;padding:12px 14px;background:var(--sea);color:var(--sea-ink)}
+.nav-top.arrived{background:var(--ok);color:#fff}
+.nav-top small{display:block;font-size:.72rem;opacity:.8}
+.nav-top b{display:block;font-size:1.05rem;line-height:1.3}
+.nav-ico{width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.15);display:grid;place-items:center}
+.nav-ico .ico{width:24px;height:24px}
+.nav-bot{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 12px}
+.nav-meta{font-family:var(--f-mono);font-size:.82rem;font-weight:600;margin-right:auto}
+.mapfab{top:auto;bottom:60px}
+
 /* Info */
 .timeline{list-style:none;margin:0;padding:0;position:relative}
 .timeline::before{content:"";position:absolute;left:62px;top:6px;bottom:6px;width:2px;background:var(--line)}
@@ -1121,6 +1141,7 @@ details.script p{margin:.8em 0 0;max-width:65ch;color:var(--ink)}
     <button class="fab" id="meBtn" aria-label="Mi ubicación"><svg class="ico"><use href="#i-locate"/></svg></button>
    </div>
    <div class="mapnote" id="mapNote">Toca un número para ver la parada</div>
+   <div class="navpanel" id="navPanel" hidden role="status"></div>
   </div>
  </section>
 
@@ -1291,6 +1312,7 @@ function renderList(){
   $('#quizScore').innerHTML=qs.length?`${ico('check')}<span>Quiz de esta ruta: <b>${ok} de ${qs.length}</b> aciertos · ${R.stops.length-qs.length} por responder</span>`:`${ico('info')}<span>Cada parada tiene una pregunta al final. ¡Competid entre vosotros!</span>`;
   if(markers)Object.keys(markers).forEach(updPin);
   renderRouteChipsCounts();
+  R.stops.forEach(s=>applyPhoto(s.id));loadPhotos(R.stops);
 }
 function renderRouteChipsCounts(){$$('.rchip').forEach(b=>{const r=routeById[b.dataset.route];b.querySelector('small').textContent=r.main.filter(s=>done.has(s.id)).length+'/'+r.main.length})}
 
@@ -1318,7 +1340,8 @@ function openSheet(id){
       <input type="range" class="scrub" id="scrub-${s.id}" min="0" max="1000" value="0" aria-label="Posición del audio">
     </div>
     <div class="chips">
-      <a class="chip primary" href="${maps}" target="_blank" rel="noopener">${ico('pin')}Cómo llegar</a>
+      <button class="chip primary" id="goBtn">${ico('route')}Llevarme aquí</button>
+      <a class="chip" href="${maps}" target="_blank" rel="noopener">${ico('pin')}Google Maps</a>
       ${s.walk?`<span class="chip">${ico('walk')}${s.extra?s.walk+' min desde '+esc(byId[s.from].name):s.walk+' min desde la anterior'}</span>`:`<span class="chip">${ico('walk')}Punto de salida</span>`}
       <button class="chip done" id="doneBtn" aria-pressed="${done.has(s.id)}">${ico('check')}<span>${done.has(s.id)?'Hecha':'Marcar como hecha'}</span></button>
     </div>
@@ -1346,7 +1369,9 @@ function openSheet(id){
     sh.querySelector('.qres').textContent=ok?'¡Correcto!':'Fallaste. La buena está marcada en verde.';renderList()});
   const sc=$('#scrub-'+id);
   sc.oninput=()=>{const f=sc.value/1000;sc.style.setProperty('--p',(f*100)+'%');if(cur===id&&audio.dataset.id===id&&audio.readyState>0)audio.currentTime=f*(audio.duration||s.dur);else start(id,f)};
+  $('#goBtn').onclick=()=>startNav(id);
   bindPlay(sh);setUI();
+  findPhoto(id).then(()=>applyPhoto(id));
   setTimeout(()=>$('#sBack').focus({preventScroll:true}),50);
 }
 function closeSheet(){$('#sheet').classList.remove('on');sheetId=null}
@@ -1408,8 +1433,8 @@ function drawRoute(fit){
   R.stops.filter(s=>s.extra).forEach(f=>{const b=byId[f.from];L.polyline([[b.lat,b.lng],[f.lat,f.lng]],{color:'#E8A055',weight:3,dashArray:'4 8'}).addTo(layer)});
   R.stops.forEach(s=>{
     const m=L.marker([s.lat,s.lng],{icon:L.divIcon({className:'',html:`<div class="pin"><span>${num(s)}</span></div>`,iconSize:[30,30],iconAnchor:[15,30],popupAnchor:[0,-28]})}).addTo(layer);
-    m.bindPopup(`<b>${esc(s.name)}</b><span style="color:var(--muted);font-size:.8rem">${esc(s.tr)}</span><br><button class="popbtn" data-open-pop="${s.id}">Abrir parada</button>`);
-    m.on('popupopen',e=>{const b=e.popup.getElement().querySelector('[data-open-pop]');b&&(b.onclick=()=>location.hash='p-'+s.id)});
+    m.bindPopup(`<b>${esc(s.name)}</b><span style="color:var(--muted);font-size:.8rem">${esc(s.tr)}</span><br><button class="popbtn" data-open-pop="${s.id}">Abrir parada</button> <button class="popbtn" data-go-pop="${s.id}">Llevarme</button>`);
+    m.on('popupopen',e=>{const el=e.popup.getElement();const b=el.querySelector('[data-open-pop]');b&&(b.onclick=()=>location.hash='p-'+s.id);const g=el.querySelector('[data-go-pop]');g&&(g.onclick=()=>{map.closePopup();startNav(s.id)})});
     markers[s.id]=m;
   });
   setTimeout(()=>Object.keys(markers).forEach(updPin),50);
@@ -1424,7 +1449,7 @@ function initMap(){
   const watch=t=>{t.on('tileload',()=>ok++);t.on('tileerror',()=>{bad++;
     if(!ok&&bad>=4&&!alt){alt=true;bad=0;map.removeLayer(tl);tl=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);watch(tl)}
     else if(!ok&&bad>=4&&alt&&!fell){fell=true;$('#map').style.display='none';schematic()}})};
-  watch(tl);drawRoute(true);
+  watch(tl);drawRoute(true);if(nav&&nav.route)drawNav();
 }
 $('#fitBtn').onclick=()=>map&&map.fitBounds(L.latLngBounds(R.stops.map(s=>[s.lat,s.lng])),{padding:[30,30]});
 $('#meBtn').onclick=()=>{
@@ -1435,6 +1460,98 @@ $('#meBtn').onclick=()=>{
     map.setView(ll,16);$('#mapNote').textContent='Estás aquí (punto azul)'},
    ()=>{$('#mapNote').textContent='No se pudo obtener la ubicación. Revisa los permisos.'},{enableHighAccuracy:true,timeout:10000});
 };
+
+
+/* ---------- PHOTOS (Wikimedia Commons) ---------- */
+const PH={"iskele": [["tr", "Kadıköy İskelesi"]], "haydarpasa": [["en", "Haydarpaşa railway station"], ["tr", "Haydarpaşa Garı"]], "yeldegirmeni": [["tr", "Yeldeğirmeni, Kadıköy"], ["en", "Yeldeğirmeni"]], "takavor": [["en", "Surp Takavor Church"], ["tr", "Surp Takavor Ermeni Kilisesi"]], "efimia": [["tr", "Aya Efimia Kilisesi"], ["tr", "Aya Efimia Rum Ortodoks Kilisesi"]], "carsi": [["tr", "Kadıköy Çarşısı"], ["tr", "Kadıköy Balık Pazarı"]], "akmar": [["tr", "Akmar Pasajı"]], "boga": [["tr", "Boğa Heykeli (Kadıköy)"], ["tr", "Kadıköy Boğa Heykeli"], ["en", "Kadıköy Bull Statue"]], "opera": [["en", "Süreyya Opera House"], ["tr", "Süreyya Operası"]], "kadife": [["tr", "Kadife Sokak"]], "baylan": [["tr", "Baylan Pastanesi"]], "moda": [["en", "Moda, Kadıköy"], ["tr", "Moda, Kadıköy"]], "modaiskele": [["tr", "Moda İskelesi"]], "burnu": [["tr", "Moda Burnu"], ["tr", "Moda Parkı"]], "fener": [["en", "Şükrü Saracoğlu Stadium"], ["tr", "Şükrü Saracoğlu Stadyumu"]], "hipodromo": [["en", "Hippodrome of Constantinople"], ["en", "Obelisk of Theodosius"]], "azul": [["en", "Sultan Ahmed Mosque"], ["es", "Mezquita Azul"]], "cisterna": [["en", "Basilica Cistern"], ["es", "Cisterna Basílica"]], "sofia": [["en", "Hagia Sophia"], ["es", "Santa Sofía"]], "topkapi": [["en", "Topkapı Palace"]], "gulhane": [["en", "Gülhane Park"]], "cemberlitas": [["en", "Column of Constantine"]], "granbazar": [["en", "Grand Bazaar, Istanbul"]], "suleymaniye": [["en", "Süleymaniye Mosque"]], "rustem": [["en", "Rüstem Pasha Mosque"]], "especias": [["en", "Spice Bazaar"]], "yenicami": [["en", "New Mosque, Istanbul"], ["en", "New Mosque (Istanbul)"]], "eminonu": [["en", "Eminönü"]], "puente": [["en", "Galata Bridge"]], "karakoy": [["en", "Karaköy"]], "bankalar": [["en", "Bankalar Caddesi"], ["en", "SALT Galata"]], "kamondo": [["en", "Camondo Stairs"]], "torre": [["en", "Galata Tower"]], "mevlevi": [["en", "Galata Mevlevi House Museum"], ["tr", "Galata Mevlevihanesi"]], "tunel": [["en", "Tünel"]]};
+let photos=store.get('kdk-photos',{});
+const savePhotos=()=>store.set('kdk-photos',photos);
+const stripTags=t=>{const d=document.createElement('div');d.innerHTML=t||'';return (d.textContent||'').trim().replace(/\s+/g,' ')};
+async function findPhoto(id){
+  if(photos[id]!==undefined)return photos[id];
+  const cands=PH[id];if(!cands){photos[id]=null;return null}
+  let soft=false;
+  for(const [lang,title] of cands){
+    try{
+      const r=await fetch(`https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title.replace(/ /g,'_'))}`);
+      if(!r.ok){if(r.status!==404)soft=true;continue}const j=await r.json();
+      const img=j.originalimage&&j.originalimage.source;if(!img)continue;
+      let file=decodeURIComponent(img.split('/').pop());
+      if(/\/thumb\//.test(img)){const parts=img.split('/');file=decodeURIComponent(parts[parts.length-2])}
+      let credit='Wikimedia Commons',lic='',big=img,small=(j.thumbnail&&j.thumbnail.source)||img;
+      try{const m=await fetch(`https://commons.wikimedia.org/w/api.php?action=query&titles=File:${encodeURIComponent(file)}&prop=imageinfo&iiprop=extmetadata|url&iiurlwidth=1000&format=json&origin=*`);
+        const mj=await m.json();const pg=Object.values(mj.query.pages)[0];const ii=pg.imageinfo&&pg.imageinfo[0];
+        if(ii){big=ii.thumburl||big;const md=ii.extmetadata||{};credit=stripTags(md.Artist&&md.Artist.value)||credit;lic=stripTags(md.LicenseShortName&&md.LicenseShortName.value)}}catch(e){}
+      photos[id]={big,small,credit:credit.slice(0,60),lic,link:'https://commons.wikimedia.org/wiki/File:'+encodeURIComponent(file)};savePhotos();return photos[id];
+    }catch(e){return null}
+  }
+  if(!soft){photos[id]=null;savePhotos()}return null;
+}
+function applyPhoto(id){
+  const p=photos[id];if(!p)return;
+  $$(`.srow[data-open="${id}"] .thumb`).forEach(t=>{if(!t.querySelector('.ph')){t.insertAdjacentHTML('afterbegin',`<img class="ph" src="${esc(p.small)}" alt="" loading="lazy" onerror="this.remove()">`)}});
+  if(sheetId===id){const c=$('#sheet .cover');if(c&&!c.querySelector('.ph')){c.insertAdjacentHTML('afterbegin',`<img class="ph" src="${esc(p.big)}" alt="Foto de ${esc(byId[id].name)}" onerror="this.remove()"><div class="ph-shade"></div>`);c.insertAdjacentHTML('beforeend',`<a class="credit" href="${p.link}" target="_blank" rel="noopener">Foto: ${esc(p.credit)}${p.lic?' · '+esc(p.lic):''}</a>`)}}
+}
+async function loadPhotos(list){for(const s of list){if(photos[s.id]===undefined)await findPhoto(s.id);applyPhoto(s.id)}}
+
+/* ---------- IN-APP NAVIGATION ---------- */
+let nav=null; // {id, watch, route:[[lat,lng]], steps, line, me}
+const fmtDist=m=>m>=1000?(m/1000).toFixed(1).replace('.',',')+' km':Math.round(m/10)*10+' m';
+const DIRS={'left':'a la izquierda','right':'a la derecha','slight left':'ligeramente a la izquierda','slight right':'ligeramente a la derecha','sharp left':'muy a la izquierda','sharp right':'muy a la derecha','straight':'todo recto','uturn':'media vuelta'};
+function stepText(st){const t=st.maneuver.type,m=st.maneuver.modifier,n=st.name?` por ${st.name}`:'';
+  if(t==='depart')return `Sal${n}`;if(t==='arrive')return 'Has llegado';
+  if(t==='roundabout'||t==='rotary')return `En la rotonda, toma la salida ${st.maneuver.exit||''}${n}`;
+  if(m==='straight')return `Sigue todo recto${n}`;if(m)return `Gira ${DIRS[m]||m}${n}`;return `Continúa${n}`}
+function startNav(id){
+  const s=byId[id];if(!s)return;
+  if(!navigator.geolocation){alertNav('Este navegador no comparte la ubicación. Usa Google Maps.');return}
+  stopNav(true);nav={id,route:null,steps:[],stepI:0,last:null,fetching:false};
+  location.hash='mapa';
+  setTimeout(()=>{initMap();showNavPanel('Buscando tu ubicación…','');
+    nav.watch=navigator.geolocation.watchPosition(p=>onNavPos(p.coords.latitude,p.coords.longitude),()=>{alertNav('No se pudo obtener tu ubicación. Revisa los permisos o usa Google Maps.')},{enableHighAccuracy:true,maximumAge:3000,timeout:20000});
+  },80);
+}
+function alertNav(msg){showNavPanel(msg,'');}
+async function fetchRoute(la,lo){
+  const s=byId[nav.id];nav.fetching=true;
+  try{const r=await fetch(`https://routing.openstreetmap.de/routed-foot/route/v1/foot/${lo},${la};${s.lng},${s.lat}?overview=full&geometries=geojson&steps=true`);
+    const j=await r.json();const rt=j.routes&&j.routes[0];if(!rt)throw 0;
+    nav.route=rt.geometry.coordinates.map(c=>[c[1],c[0]]);nav.steps=rt.legs[0].steps;nav.stepI=0;nav.straight=false;
+  }catch(e){if(!nav)return;nav.route=[[la,lo],[s.lat,s.lng]];nav.steps=[];nav.straight=true}
+  if(!nav)return;nav.fetching=false;drawNav();if(nav.last)onNavPos(nav.last[0],nav.last[1]);
+}
+function drawNav(){
+  if(!map||!nav)return;if(nav.line)nav.line.remove();
+  nav.line=L.polyline(nav.route,{color:'#E8A055',weight:6,opacity:.9,dashArray:nav.straight?'6 10':null}).addTo(map);
+}
+function distToRoute(la,lo){if(!nav.route)return 1e9;let b=1e9;for(const p of nav.route){const d=distM(la,lo,p[0],p[1]);if(d<b)b=d}return b}
+function onNavPos(la,lo){
+  if(!nav)return;const s=byId[nav.id];nav.last=[la,lo];
+  if(map){if(!meMarker)meMarker=L.marker([la,lo],{icon:L.divIcon({className:'',html:'<div class="me"></div>',iconSize:[16,16],iconAnchor:[8,8]}),zIndexOffset:1000}).addTo(map);else meMarker.setLatLng([la,lo]);map.setView([la,lo],Math.max(map.getZoom(),17),{animate:true})}
+  const left=distM(la,lo,s.lat,s.lng);
+  if(left<30){arrived();return}
+  if(!nav.route&&!nav.fetching)fetchRoute(la,lo);
+  else if(nav.route&&!nav.fetching&&!nav.straight&&distToRoute(la,lo)>45)fetchRoute(la,lo);
+  let instr='';
+  if(nav.steps.length){
+    for(let i=nav.stepI;i<nav.steps.length;i++){const m=nav.steps[i].maneuver.location;if(distM(la,lo,m[1],m[0])<20)nav.stepI=Math.min(i+1,nav.steps.length-1)}
+    const nx=nav.steps[nav.stepI];const ml=nx.maneuver.location;instr=`${stepText(nx)} · en ${fmtDist(distM(la,lo,ml[1],ml[0]))}`;
+  }else if(nav.straight){const br=bearing(la,lo,s.lat,s.lng);instr=`Camina hacia el ${br} (sin ruta detallada)`}
+  showNavPanel(instr||'Calculando el camino…',`${fmtDist(left)} · ${Math.max(1,Math.round(left/75))} min a pie`);
+}
+function bearing(a,b,c,d){const y=Math.sin((d-b)*Math.PI/180)*Math.cos(c*Math.PI/180),x=Math.cos(a*Math.PI/180)*Math.sin(c*Math.PI/180)-Math.sin(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.cos((d-b)*Math.PI/180);const g=(Math.atan2(y,x)*180/Math.PI+360)%360;return ['norte','noreste','este','sureste','sur','suroeste','oeste','noroeste'][Math.round(g/45)%8]}
+function arrived(){
+  const s=byId[nav.id];stopNav(true);
+  $('#navPanel').innerHTML=`<div class="nav-top arrived"><div class="nav-ico">${ico('check')}</div><div><small>Has llegado</small><b>${esc(s.name)}</b></div></div><div class="nav-bot"><button class="chip primary" id="navPlay">${ico('play')}Escuchar el audio</button><button class="chip" id="navOpen">Abrir parada</button><button class="chip" id="navClose">Cerrar</button></div>`;
+  $('#navPanel').hidden=false;$('#navPlay').onclick=()=>{location.hash='p-'+s.id;toggle(s.id)};$('#navOpen').onclick=()=>location.hash='p-'+s.id;$('#navClose').onclick=()=>{$('#navPanel').hidden=true};
+}
+function showNavPanel(instr,meta){
+  const s=nav&&byId[nav.id];if(!s)return;
+  const gm='https://www.google.com/maps/dir/?api=1&travelmode=walking&destination='+encodeURIComponent(s.maps);
+  $('#navPanel').innerHTML=`<div class="nav-top"><div class="nav-ico">${ico('walk')}</div><div><small>Hacia ${esc(s.name)}</small><b>${esc(instr)}</b></div></div><div class="nav-bot"><span class="nav-meta">${esc(meta)}</span><a class="chip" href="${gm}" target="_blank" rel="noopener">Google Maps</a><button class="chip" id="navStop">Salir</button></div>`;
+  $('#navPanel').hidden=false;$('#navStop').onclick=()=>stopNav();
+}
+function stopNav(keep){if(nav){if(nav.watch!=null)navigator.geolocation.clearWatch(nav.watch);if(nav.line)nav.line.remove()}nav=null;if(!keep)$('#navPanel').hidden=true}
 
 /* ---------- NEARBY ---------- */
 let watchId=null;const nearShown=new Set();
