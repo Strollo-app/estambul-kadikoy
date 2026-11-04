@@ -1,6 +1,6 @@
 {
-  "name": "Andares",
-  "short_name": "Andares",
+  "name": "Strollo",
+  "short_name": "Strollo",
   "description": "Rutas a pie con audioguía, mapa y dónde comer.",
   "start_url": "./",
   "scope": "./",
